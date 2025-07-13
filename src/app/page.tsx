@@ -27,9 +27,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import roleDescriptions from "../roleDescriptions.json";
 import NavigationLinks from "@/components/NavigationLinks";
+import type { RoleDescriptions, Player, RoleCount } from "@/types/game";
 
 //Shuffle an array (stackoverflow)
-function shuffle(a: any[]) {
+function shuffle<T>(a: T[]): T[] {
   let j, x, i;
   for (i = a.length - 1; i > 0; i--) {
     j = ~~(Math.random() * (i + 1));
@@ -40,7 +41,7 @@ function shuffle(a: any[]) {
   return a;
 }
 
-// Predefined friends list - you can customize this with your actual friends' names
+// Predefined friends list - you can customize this with your actual friends&apos; names
 const predefinedFriends = [
   "Alex",
   "Amy",
@@ -111,9 +112,9 @@ export default function GameDesignPage() {
       dispatch(showAlert({ body: "Add some roles", header: "Error" }));
     else {
       // Shuffle
-      let shuffledRoles = shuffle([...availableRoles]);
+      const shuffledRoles = shuffle([...availableRoles]);
 
-      let allotedRoles = [];
+      const allotedRoles = [];
       // allocate randomly (Second shuffle)
       for (let i = 0; i < players; i++) {
         const countRolesLeft = shuffledRoles.length;
@@ -124,7 +125,7 @@ export default function GameDesignPage() {
         allotedRoles.push({
           alive: true,
           allotedRole,
-          type: (roleDescriptions as any)[allotedRole].type,
+          type: (roleDescriptions as RoleDescriptions)[allotedRole].type,
         });
         shuffledRoles.splice(allotedRoleIndex, 1);
       }
@@ -136,9 +137,9 @@ export default function GameDesignPage() {
   const handleSelectFriends = () => {
     if (selectedFriends.length === players) {
       // Use selected friends
-      const autoFilledPlayers = selectedFriends.map((friendName, i) => ({
+      const autoFilledPlayers: Player[] = selectedFriends.map((friendName, i) => ({
         name: friendName,
-        hook: (playerNames[i] as any)?.hook || "",
+        hook: (playerNames[i] as Player)?.hook || "",
       }));
       dispatch(updatePlayers(autoFilledPlayers));
       setShowFriendSelector(false);
@@ -172,12 +173,12 @@ export default function GameDesignPage() {
     }
   };
 
-  const roleDisplay = (roleObject: any, roleUpdateFn: any) =>
-    Object.entries(roleObject).map(([role, count]: [string, any]) => (
+  const roleDisplay = (roleObject: RoleCount, roleUpdateAction: (payload: RoleCount) => { type: string; payload: RoleCount }) =>
+    Object.entries(roleObject).map(([role, count]: [string, number]) => (
       <div
         key={role}
         className={`role-card role-card-hover ${getRoleTypeStyle(
-          (roleDescriptions as any)[role].type
+          (roleDescriptions as RoleDescriptions)[role].type
         )}`}
       >
         <div className="flex items-center justify-between">
@@ -185,7 +186,7 @@ export default function GameDesignPage() {
             className="flex-grow cursor-pointer py-2"
             onClick={() => {
               const { type, description, player, narrator } =
-                (roleDescriptions as any)[role];
+                (roleDescriptions as RoleDescriptions)[role];
 
               dispatch(
                 showAlert({
@@ -228,7 +229,7 @@ export default function GameDesignPage() {
               onClick={() => {
                 if (count !== 0) {
                   dispatch(
-                    roleUpdateFn({
+                    roleUpdateAction({
                       ...roleObject,
                       [role]: count - 1,
                     })
@@ -243,9 +244,9 @@ export default function GameDesignPage() {
               className={`text-center w-8 font-medium ${
                 count === 0
                   ? "text-slate-400"
-                  : (roleDescriptions as any)[role].type === "M"
+                  : (roleDescriptions as RoleDescriptions)[role].type === "M"
                   ? "text-red-600"
-                  : (roleDescriptions as any)[role].type === "V"
+                  : (roleDescriptions as RoleDescriptions)[role].type === "V"
                   ? "text-green-600"
                   : "text-yellow-600"
               }`}
@@ -256,7 +257,7 @@ export default function GameDesignPage() {
               className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-600"
               onClick={() => {
                 dispatch(
-                  roleUpdateFn({
+                  roleUpdateAction({
                     ...roleObject,
                     [role]: count + 1,
                   })
@@ -510,7 +511,7 @@ export default function GameDesignPage() {
                                     icon={faCheck}
                                     className="mr-2"
                                   />
-                                  Perfect! You've selected all {players} friends
+                                  Perfect! You&apos;ve selected all {players} friends
                                 </p>
                               </div>
                             )}
@@ -553,14 +554,14 @@ export default function GameDesignPage() {
                           i >= players ? "opacity-50" : ""
                         }`}
                         placeholder={`Player ${i + 1} name`}
-                        value={playerNames[i] ? (playerNames[i] as any).name : ""}
+                        value={playerNames[i] ? (playerNames[i] as Player).name : ""}
                         disabled={i >= players}
                         onChange={(e) => {
                           if (i < players) {
                             dispatch(
                               updatePlayers([
                                 ...playerNames.slice(0, i),
-                                { ...(playerNames[i] as any), name: e.target.value },
+                                { ...(playerNames[i] as Player), name: e.target.value },
                                 ...playerNames.slice(i + 1),
                               ])
                             );
@@ -606,11 +607,11 @@ export default function GameDesignPage() {
                 </div>
                 <div className="card-body">
                   {uniqueAvailableRoles.filter(
-                    (role) => (roleDescriptions as any)[role].narrator !== ""
+                    (role) => (roleDescriptions as RoleDescriptions)[role].narrator !== ""
                   ).length > 0 ? (
                     <div className="space-y-4">
                       {uniqueAvailableRoles
-                        .filter((role) => (roleDescriptions as any)[role].narrator !== "")
+                        .filter((role) => (roleDescriptions as RoleDescriptions)[role].narrator !== "")
                         .map((role, i) => (
                           <div
                             key={i}
@@ -620,7 +621,7 @@ export default function GameDesignPage() {
                               {role}
                             </h4>
                             <p className="text-sm text-purple-700">
-                              {(roleDescriptions as any)[role].narrator}
+                              {(roleDescriptions as RoleDescriptions)[role].narrator}
                             </p>
                           </div>
                         ))}

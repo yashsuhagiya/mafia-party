@@ -1,4 +1,5 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
+import type { Player, RoleCount } from '@/types/game';
 
 // Initial state
 const initialState = {
@@ -89,9 +90,9 @@ export const {
 } = gameSlice.actions;
 
 // Legacy action creators for compatibility
-export const updateMafia = (mafiaRoles: any) => updateMafiaRoles(mafiaRoles);
-export const updateVillage = (villageRoles: any) => updateVillageRoles(villageRoles);
-export const updatePlayers = (playerNames: any) => updatePlayerNames(playerNames);
+export const updateMafia = (mafiaRoles: RoleCount) => updateMafiaRoles(mafiaRoles);
+export const updateVillage = (villageRoles: RoleCount) => updateVillageRoles(villageRoles);
+export const updatePlayers = (playerNames: Player[]) => updatePlayerNames(playerNames);
 
 // Create store
 export const store = configureStore({
