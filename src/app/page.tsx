@@ -514,7 +514,7 @@ export default function GameDesignPage() {
                                     icon={faCheck}
                                     className="mr-2"
                                   />
-                                  Perfect! You've selected all {players} friends
+                                  Perfect! You&apos;ve selected all {players} friends
                                 </p>
                               </div>
                             )}

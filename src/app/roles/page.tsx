@@ -13,7 +13,6 @@ import {
     faBolt,
     faSkull,
     faMoon,
-    faSun,
     faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import roleDescriptions from '@/roleDescriptions.json';
@@ -318,7 +317,7 @@ export default function RolesPage() {
                             </div>
                             <h3 className="text-2xl font-semibold text-slate-900 mb-3">No roles found</h3>
                             <p className="text-slate-600 max-w-md mx-auto leading-relaxed">
-                                Try adjusting your search terms or filters to find what you're looking for.
+                                Try adjusting your search terms or filters to find what you&apos;re looking for.
                             </p>
                             <button
                                 onClick={() => {

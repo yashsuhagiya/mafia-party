@@ -95,7 +95,7 @@ export default function HowToUsePage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-900 mb-1">Generate & Distribute Roles</h3>
-                                    <p className="text-slate-600">Click "Generate & Start Game!" to randomly assign roles. Share each player's role privately.</p>
+                                    <p className="text-slate-600">Click &quot;Generate &amp; Start Game!&quot; to randomly assign roles. Share each player&apos;s role privately.</p>
                                 </div>
                             </div>
                             <div className="flex items-start space-x-4">
@@ -140,7 +140,7 @@ export default function HowToUsePage() {
                                         </div>
                                         <div>
                                             <h4 className="font-semibold text-slate-900">Police</h4>
-                                            <p className="text-sm text-slate-600">Investigate one player's role</p>
+                                            <p className="text-sm text-slate-600">Investigate one player&apos;s role</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start space-x-3">
