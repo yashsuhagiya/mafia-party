@@ -30,7 +30,7 @@ A thrilling digital Mafia game perfect for virtual game nights and gatherings! C
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/mafia-party.git
+git clone https://github.com/yashsuhagiya/mafia-party.git
 cd mafia-party
 ```
 
