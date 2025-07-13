@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState } from "@/redux/store";
@@ -27,6 +27,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import roleDescriptions from "../roleDescriptions.json";
 import NavigationLinks from "@/components/NavigationLinks";
+import Alert from "@/components/Alert";
 import type { RoleDescriptions, Player, RoleCount } from "@/types/game";
 
 //Shuffle an array (stackoverflow)
@@ -72,6 +73,13 @@ const predefinedFriends = [
 export default function GameDesignPage() {
   const router = useRouter();
   const dispatch = useDispatch();
+
+  // Hydration check to prevent SSR mismatches
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // State for friend selection
   const [showFriendSelector, setShowFriendSelector] = useState(false);
@@ -271,17 +279,33 @@ export default function GameDesignPage() {
       </div>
     ));
 
+  // If not hydrated, show loading state to prevent hydration mismatch
+  if (!isHydrated) {
+    return (
+      <>
+        <NavigationLinks />
+        <div className="pt-20 p-6 min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600 mx-auto mb-4"></div>
+            <p className="text-slate-700 text-lg">Loading Mafia Party...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <NavigationLinks />
+      <Alert />
       <div className="pt-20 p-6 min-h-screen">
         <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-4 text-shadow">
+            <h1 className="text-4xl font-bold text-slate-900 mb-4 text-shadow">
               🎭 Mafia Party
             </h1>
-            <p className="text-lg text-white/90 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-700 max-w-2xl mx-auto">
               Create a thrilling Mafia game by selecting roles and adding players.
               Perfect for virtual game nights and gatherings!
             </p>
@@ -359,17 +383,13 @@ export default function GameDesignPage() {
                           <button
                             type="button"
                             onClick={() => setShowFriendSelector(true)}
-                            className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 shadow-sm hover:shadow-md text-sm"
+                            className="px-2 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-md font-medium transition-all duration-200 flex items-center space-x-1.5 shadow-sm hover:shadow-md text-xs"
                           >
                             <FontAwesomeIcon
                               icon={faUserFriends}
-                              className="text-blue-600 text-sm"
+                              className="text-blue-600 text-xs"
                             />
                             <span className="text-slate-700">Select Friends</span>
-                            <FontAwesomeIcon
-                              icon={faChevronRight}
-                              className="text-slate-400 text-xs"
-                            />
                           </button>
                         </div>
                       </div>
@@ -394,11 +414,9 @@ export default function GameDesignPage() {
                           </div>
                         </div>
                       </div>
-                    )}
-
-                    {/* Friend Selection Modal */}
+                    )}                    {/* Friend Selection Modal */}
                     {showFriendSelector && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                      <div className="fixed inset-0 bg-slate-200 bg-opacity-60 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
                           {/* Modal Header */}
                           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white">
@@ -418,12 +436,11 @@ export default function GameDesignPage() {
                               >
                                 <FontAwesomeIcon
                                   icon={faTimes}
-                                  className="text-white text-xl"
+                                  className="text-white text-xl hover:text-gray-500"
                                 />
                               </button>
                             </div>
                           </div>
-
                           {/* Modal Body */}
                           <div className="p-6">
                             {/* Progress indicator */}
@@ -447,7 +464,6 @@ export default function GameDesignPage() {
                                 ></div>
                               </div>
                             </div>
-
                             {/* Friends Grid */}
                             <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto mb-6 pr-2">
                               {predefinedFriends.map((friend) => (
@@ -470,25 +486,13 @@ export default function GameDesignPage() {
                                       : ""
                                   }`}
                                 >
-                                  <div className="flex flex-col items-center space-y-2">
-                                    <div
-                                      className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
-                                        selectedFriends.includes(friend)
-                                          ? "bg-white bg-opacity-20 text-white"
-                                          : "bg-blue-100 text-blue-600"
-                                      }`}
-                                    >
-                                      {friend.charAt(0)}
-                                    </div>
-                                    <span className="text-sm">{friend}</span>
-                                  </div>
+                                  <span className="text-sm font-medium">{friend}</span>
                                 </button>
                               ))}
                             </div>
-
                             {/* Helper text */}
                             {selectedFriends.length < players && (
-                              <div className="text-center mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <div className="text-center mb-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                                 <p className="text-sm text-blue-700">
                                   <FontAwesomeIcon
                                     icon={faInfoCircle}
@@ -503,26 +507,24 @@ export default function GameDesignPage() {
                                 </p>
                               </div>
                             )}
-
                             {selectedFriends.length === players && (
-                              <div className="text-center mb-6 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                              <div className="text-center mb-2 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
                                 <p className="text-sm text-emerald-700">
                                   <FontAwesomeIcon
                                     icon={faCheck}
                                     className="mr-2"
                                   />
-                                  Perfect! You&apos;ve selected all {players} friends
+                                  Perfect! You've selected all {players} friends
                                 </p>
                               </div>
                             )}
                           </div>
-
                           {/* Modal Footer */}
-                          <div className="bg-slate-50 px-6 py-4 flex space-x-3 justify-end">
+                          <div className="bg-slate-50 px-6 py-4 flex space-x-3">
                             <button
                               type="button"
                               onClick={() => setShowFriendSelector(false)}
-                              className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors text-sm"
+                              className="flex-1 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg font-medium transition-all duration-200 text-slate-700"
                             >
                               Cancel
                             </button>
@@ -530,7 +532,7 @@ export default function GameDesignPage() {
                               <button
                                 type="button"
                                 onClick={handleSelectFriends}
-                                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm"
+                                className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
                               >
                                 <FontAwesomeIcon
                                   icon={faCheck}
