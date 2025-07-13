@@ -21,15 +21,15 @@ export default function HowToUsePage() {
     return (
         <>
             <NavigationLinks />
-            <div className="pt-20 p-6 min-h-screen">
+            <div className="pt-20 p-6 min-h-screen mt-10">
                 <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
                     {/* Header */}
                     <div className="text-center">
                         <h1 className="text-4xl font-bold text-slate-900 mb-4 text-shadow">
-                            🎭 How to Play Mafia
+                            📜 Game Rules
                         </h1>
                         <p className="text-lg text-slate-700 max-w-2xl mx-auto">
-                            Learn the rules and mechanics of the classic Mafia party game. Perfect for game nights with friends!
+                            Master the classic Mafia party game with these simple rules and strategies
                         </p>
                     </div>
 
@@ -238,7 +238,7 @@ export default function HowToUsePage() {
                         <div className="card-body">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <h3 className="font-semibold text-slate-900 mb-3 text-green-700">For Villagers:</h3>
+                                    <h3 className="font-semibold text-green-500 mb-3">For Villagers:</h3>
                                     <ul className="space-y-2 text-sm text-slate-600">
                                         <li className="flex items-start">
                                             <span className="text-green-600 mr-2">•</span>
@@ -259,7 +259,7 @@ export default function HowToUsePage() {
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-slate-900 mb-3 text-red-700">For Mafia:</h3>
+                                    <h3 className="font-semibold mb-3 text-red-700">For Mafia:</h3>
                                     <ul className="space-y-2 text-sm text-slate-600">
                                         <li className="flex items-start">
                                             <span className="text-red-600 mr-2">•</span>

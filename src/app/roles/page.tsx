@@ -100,11 +100,11 @@ export default function RolesPage() {
         return (
             <>
                 <NavigationLinks />
-                <div className="pt-20 p-6 min-h-screen">
+                <div className="pt-20 p-6 min-h-screen mt-10" >
                     <div className="max-w-6xl mx-auto space-y-8">
                         <div className="text-center">
                             <h1 className="text-4xl font-bold text-slate-900 mb-4">
-                                🎭 Mafia Roles Guide
+                                📚 Mafia Roles Guide
                             </h1>
                             <p className="text-lg text-slate-700 max-w-2xl mx-auto">
                                 Discover all available roles, their abilities, and how they contribute to the game dynamics.
@@ -120,15 +120,15 @@ export default function RolesPage() {
     return (
         <>
             <NavigationLinks />
-            <div className="pt-20 p-6 min-h-screen">
+            <div className="pt-20 p-6 min-h-screen mt-10">
                 <div className="max-w-6xl mx-auto space-y-8 animate-fade-in">
                     {/* Header */}
                     <div className="text-center">
                         <h1 className="text-4xl font-bold text-slate-900 mb-4 text-shadow">
-                            🎭 Mafia Roles Guide
+                            📚 Role Guide
                         </h1>
                         <p className="text-lg text-slate-700 max-w-2xl mx-auto">
-                            Discover all available roles, their abilities, and how they contribute to the game dynamics.
+                            Explore all available roles, their unique abilities, and strategic gameplay tips
                         </p>
                     </div>
 
