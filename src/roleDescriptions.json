@@ -1,0 +1,32 @@
+{
+  "silencer": {
+    "type": "M",
+    "description": "[MAFIA] Silent mafia member who can silence players during the day.",
+    "player": "At night, tell who to silence",
+    "narrator": "During night, ask who to silence and note down. During the day, announce who is silenced."
+  },
+  "mafia": {
+    "type": "M",
+    "description": "[MAFIA] Standard mafia member who eliminates villagers at night.",
+    "player": "Work with other mafia members to eliminate villagers",
+    "narrator": "Mafia members work together to choose who to eliminate each night"
+  },
+  "villager": {
+    "type": "V",
+    "description": "[VILLAGE] Standard villager trying to identify and eliminate all mafia members.",
+    "player": "During the day, vote to eliminate suspected mafia members",
+    "narrator": "Villagers win when all mafia are eliminated"
+  },
+  "police": {
+    "type": "V",
+    "description": "[VILLAGE] Investigator who can check if a player is mafia or not each night.",
+    "player": "At night, choose one player to investigate. You'll learn if they are mafia or not.",
+    "narrator": "During night, ask who to investigate and privately tell the police if the target is mafia or not"
+  },
+  "doctor": {
+    "type": "V",
+    "description": "[VILLAGE] Healer who can protect one player from elimination each night.",
+    "player": "At night, choose one player to protect (including yourself). They cannot be eliminated that night.",
+    "narrator": "During night, ask who to protect. If mafia targets the protected player, the elimination fails"
+  }
+}
