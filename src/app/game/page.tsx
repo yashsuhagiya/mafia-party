@@ -131,7 +131,7 @@ export default function GameManagementPage() {
         } catch (error) {
             dispatch(showAlert({
                 body: `Failed to send to ${player.name}`,
-                header: "Error"
+                header: "Error:" + error
             }));
         }
     };
