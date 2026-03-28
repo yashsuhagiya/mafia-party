@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bgBurst" cx="50%" cy="45%" r="60%">
+      <stop offset="0%"   stop-color="#e85c00"/>
+      <stop offset="28%"  stop-color="#b83000"/>
+      <stop offset="62%"  stop-color="#5a1010"/>
+      <stop offset="100%" stop-color="#080303"/>
+    </radialGradient>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#080303"/>
+      <stop offset="45%"  stop-color="#3a1505"/>
+      <stop offset="100%" stop-color="#1a0800"/>
+    </linearGradient>
+    <radialGradient id="haze" cx="50%" cy="48%" r="42%">
+      <stop offset="0%"   stop-color="#ff7a20" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ff7a20" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#f5dc90"/>
+      <stop offset="50%"  stop-color="#c9a96e"/>
+      <stop offset="100%" stop-color="#7a5a28"/>
+    </linearGradient>
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="textShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#000" flood-opacity="0.9"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#skyGrad)"/>
+  <rect width="1024" height="1024" fill="url(#bgBurst)"/>
+  <rect width="1024" height="1024" fill="url(#haze)"/>
+
+  <!-- ── CITY SKYLINE ── -->
+
+  <!-- Far background buildings (left) -->
+  <rect x="0"   y="600" width="55"  height="424" fill="#120705"/>
+  <rect x="50"  y="640" width="40"  height="384" fill="#0e0503"/>
+  <rect x="85"  y="570" width="50"  height="454" fill="#150806"/>
+  <rect x="130" y="615" width="38"  height="409" fill="#100604"/>
+  <rect x="163" y="585" width="52"  height="439" fill="#130706"/>
+  <rect x="210" y="555" width="36"  height="469" fill="#160905"/>
+  <rect x="241" y="625" width="48"  height="399" fill="#0e0503"/>
+
+  <!-- Far background buildings (right) -->
+  <rect x="735" y="595" width="52"  height="429" fill="#120705"/>
+  <rect x="782" y="635" width="40"  height="389" fill="#0e0503"/>
+  <rect x="817" y="565" width="52"  height="459" fill="#150806"/>
+  <rect x="864" y="610" width="38"  height="414" fill="#100604"/>
+  <rect x="897" y="580" width="50"  height="444" fill="#130706"/>
+  <rect x="942" y="550" width="37"  height="474" fill="#160905"/>
+  <rect x="974" y="618" width="50"  height="406" fill="#0e0503"/>
+
+  <!-- Mid-layer buildings (left side) -->
+  <rect x="255" y="480" width="60"  height="544" fill="#180a05"/>
+  <rect x="310" y="510" width="48"  height="514" fill="#130705"/>
+  <rect x="353" y="460" width="55"  height="564" fill="#1a0b06"/>
+  <!-- Pointed top on left mid tower -->
+  <polygon points="353,460 380,410 408,460" fill="#1a0b06"/>
+
+  <!-- Mid-layer buildings (right side) -->
+  <rect x="616" y="475" width="55"  height="549" fill="#1a0b06"/>
+  <rect x="666" y="508" width="48"  height="516" fill="#130705"/>
+  <rect x="709" y="458" width="60"  height="566" fill="#180a05"/>
+  <!-- Pointed top on right mid tower -->
+  <polygon points="616,475 644,420 671,475" fill="#1a0b06"/>
+
+  <!-- ── CENTRAL LANDMARK TOWER ── -->
+  <!-- Base tower body -->
+  <rect x="420" y="200" width="184" height="824" fill="#100604"/>
+  <!-- Tower inset / darker centre -->
+  <rect x="448" y="210" width="128" height="814" fill="#0a0402"/>
+  <!-- Stepped sections -->
+  <rect x="435" y="200" width="154" height="30"  fill="#150806"/>
+  <rect x="445" y="170" width="134" height="35"  fill="#120705"/>
+  <rect x="458" y="140" width="108" height="35"  fill="#0f0503"/>
+  <rect x="470" y="115" width="84"  height="30"  fill="#0d0503"/>
+  <!-- Spire -->
+  <rect x="506" y="60"  width="12"  height="60"  fill="#1a0b06"/>
+  <polygon points="500,115 512,55 524,115" fill="#1a0b06"/>
+
+  <!-- Tower windows (warm glow) -->
+  <rect x="440" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.7"/>
+  <rect x="462" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.5"/>
+  <rect x="484" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.6"/>
+  <rect x="526" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.5"/>
+  <rect x="548" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.7"/>
+  <rect x="570" y="240" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.4"/>
+
+  <rect x="440" y="270" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.4"/>
+  <rect x="484" y="270" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.6"/>
+  <rect x="548" y="270" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.5"/>
+  <rect x="570" y="270" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.3"/>
+
+  <rect x="440" y="300" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.5"/>
+  <rect x="462" y="300" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.7"/>
+  <rect x="526" y="300" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.4"/>
+  <rect x="570" y="300" width="14" height="10" rx="2" fill="#cc5a0a" opacity="0.6"/>
+
+  <!-- Ground -->
+  <rect x="0" y="820" width="1024" height="204" fill="#060202"/>
+
+  <!-- ── TEXT CENTERED VERTICALLY ── -->
+  <!-- MAFIA -->
+  <text
+    x="512" y="570"
+    text-anchor="middle"
+    font-family="'Georgia', 'Times New Roman', serif"
+    font-size="200"
+    font-weight="900"
+    letter-spacing="-2"
+    fill="url(#goldText)"
+    filter="url(#textGlow)"
+  >MAFIA</text>
+
+  <!-- Divider -->
+  <line x1="190" y1="590" x2="834" y2="590" stroke="#c9a96e" stroke-width="2" opacity="0.55"/>
+
+  <!-- PARTY subtitle -->
+  <text
+    x="512" y="648"
+    text-anchor="middle"
+    font-family="'Georgia', 'Times New Roman', serif"
+    font-size="54"
+    font-weight="400"
+    letter-spacing="24"
+    fill="#c9a96e"
+    opacity="0.9"
+    filter="url(#textShadow)"
+  >PARTY</text>
+</svg>
