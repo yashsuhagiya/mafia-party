@@ -43,3 +43,7 @@ yarn-error.*
 /ios
 /android
 .vercel
+
+# Local tooling output
+graphify-out/
+.playwright-mcp/
