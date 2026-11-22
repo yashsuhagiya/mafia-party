@@ -1,13 +1,8 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import {
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Button from '../components/Button';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
 
@@ -19,7 +14,7 @@ export default function ScanScreen() {
 	const [scanning, setScanning] = useState(true);
 
 	const handleBarCodeScanned = ({ data }: { data: string }) => {
-		if (!scanning) return;
+		if (!scanning || !data.includes('\nRole: ')) return;
 		setScanning(false);
 		setScannedText(data);
 	};
@@ -37,8 +32,8 @@ export default function ScanScreen() {
 				edges={['top', 'left', 'right']}
 			>
 				<View style={styles.center}>
-					<Text style={styles.title}>SCAN ROLE</Text>
-					<Text style={styles.message}>Loading camera...</Text>
+					<Text style={styles.title}>Scan role</Text>
+					<Text style={styles.message}>Loading camera</Text>
 				</View>
 			</SafeAreaView>
 		);
@@ -52,18 +47,14 @@ export default function ScanScreen() {
 				edges={['top', 'left', 'right']}
 			>
 				<View style={styles.center}>
-					<Text style={styles.title}>SCAN ROLE</Text>
+					<Text style={styles.title}>Scan role</Text>
 					<Text style={styles.message}>
 						Camera access is needed to scan QR codes.
 					</Text>
-					<TouchableOpacity
-						style={styles.grantBtn}
+					<Button
+						label="Grant camera access"
 						onPress={requestPermission}
-					>
-						<Text style={styles.grantBtnText}>
-							GRANT CAMERA ACCESS
-						</Text>
-					</TouchableOpacity>
+					/>
 				</View>
 			</SafeAreaView>
 		);
@@ -73,7 +64,6 @@ export default function ScanScreen() {
 	if (scannedText) {
 		// Parse the role text
 		const lines = scannedText.split('\n').filter((l) => l.trim());
-		const _hasTeammates = scannedText.includes('Your teammates:');
 
 		return (
 			<SafeAreaView
@@ -93,46 +83,10 @@ export default function ScanScreen() {
 								);
 							}
 							if (line.startsWith('Team:')) {
-								const team = line
-									.replace('Team: ', '')
-									.trim()
-									.toLowerCase();
-								const tc =
-									team === 'mafia'
-										? colors.mafia.primary
-										: team === 'village'
-											? colors.village.primary
-											: colors.neutral.primary;
 								return (
-									<View
-										key={line}
-										style={[
-											styles.teamBadge,
-											{ backgroundColor: tc },
-										]}
-									>
-										<Text style={styles.teamBadgeText}>
-											{line.replace('Team: ', '')}
-										</Text>
-									</View>
-								);
-							}
-							if (line.includes('Your teammates:')) {
-								return (
-									<View
-										key={line}
-										style={styles.teammatesBox}
-									>
-										<Text style={styles.teammatesLabel}>
-											YOUR TEAMMATES
-										</Text>
-										<Text style={styles.teammatesText}>
-											{line.replace(
-												'Your teammates: ',
-												'',
-											)}
-										</Text>
-									</View>
+									<Text key={line} style={styles.teamText}>
+										{line}
+									</Text>
 								);
 							}
 							if (line.includes('Do not show')) {
@@ -142,14 +96,10 @@ export default function ScanScreen() {
 									</Text>
 								);
 							}
-							// Role name line (has emoji) or description
-							const hasEmoji = /[\u{1F000}-\u{1FFFF}]/u.test(
-								line,
-							);
-							if (hasEmoji) {
+							if (line.startsWith('Role:')) {
 								return (
 									<Text key={line} style={styles.roleName}>
-										{line}
+										{line.replace('Role: ', '')}
 									</Text>
 								);
 							}
@@ -161,12 +111,12 @@ export default function ScanScreen() {
 						})}
 					</View>
 
-					<TouchableOpacity
-						style={styles.scanAgainBtn}
+					<Button
+						label="Hide and scan again"
+						variant="secondary"
 						onPress={handleReset}
-					>
-						<Text style={styles.scanAgainBtnText}>SCAN AGAIN</Text>
-					</TouchableOpacity>
+						style={styles.scanAgainBtn}
+					/>
 				</View>
 			</SafeAreaView>
 		);
@@ -175,7 +125,7 @@ export default function ScanScreen() {
 	// Camera scanner
 	return (
 		<SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-			<Text style={styles.title}>SCAN ROLE</Text>
+			<Text style={styles.title}>Scan role</Text>
 			<Text style={styles.subtitle}>Point camera at the QR code</Text>
 
 			<View
@@ -226,42 +176,29 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: fonts.heading,
-		fontSize: 25,
-		color: colors.gold.primary,
-		letterSpacing: 3,
+		fontSize: 24,
+		color: colors.text.primary,
 		marginTop: 16,
 	},
 	subtitle: {
 		fontFamily: fonts.body,
-		fontSize: 15,
+		fontSize: 14,
 		color: colors.text.secondary,
 		marginTop: 4,
 		marginBottom: 16,
 	},
 	message: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.secondary,
 		textAlign: 'center',
 		marginBottom: 24,
 	},
-	grantBtn: {
-		backgroundColor: colors.gold.dark,
-		borderRadius: 12,
-		paddingHorizontal: 32,
-		paddingVertical: 16,
-	},
-	grantBtnText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.bg.primary,
-		letterSpacing: 1,
-	},
 	cameraContainer: {
-		borderRadius: 16,
+		borderRadius: 14,
 		overflow: 'hidden',
-		borderWidth: 2,
-		borderColor: colors.gold.dark,
+		borderWidth: 1,
+		borderColor: colors.border,
 	},
 	camera: {
 		flex: 1,
@@ -273,8 +210,8 @@ const styles = StyleSheet.create({
 	},
 	scanFrame: {
 		borderWidth: 2,
-		borderColor: colors.gold.primary,
-		borderRadius: 12,
+		borderColor: colors.accent.primary,
+		borderRadius: 10,
 	},
 	hint: {
 		fontFamily: fonts.body,
@@ -287,36 +224,30 @@ const styles = StyleSheet.create({
 	// Scanned role display
 	roleCard: {
 		backgroundColor: colors.bg.card,
-		borderWidth: 2,
-		borderColor: colors.gold.dark,
-		borderRadius: 20,
-		padding: 28,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 14,
+		padding: 24,
 		alignItems: 'center',
 	},
 	roleHeader: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.secondary,
 		marginBottom: 12,
 		textAlign: 'center',
 	},
-	teamBadge: {
-		borderRadius: 12,
-		paddingHorizontal: 16,
-		paddingVertical: 4,
+	teamText: {
+		fontFamily: fonts.body,
+		fontSize: 14,
+		color: colors.text.secondary,
 		marginBottom: 16,
-	},
-	teamBadgeText: {
-		fontFamily: fonts.heading,
-		fontSize: 12,
-		color: colors.text.primary,
-		letterSpacing: 2,
 	},
 	roleName: {
 		fontFamily: fonts.heading,
-		fontSize: 27,
-		color: colors.gold.primary,
-		marginBottom: 12,
+		fontSize: 32,
+		color: colors.text.primary,
+		marginBottom: 4,
 		textAlign: 'center',
 	},
 	roleDesc: {
@@ -327,47 +258,14 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		marginBottom: 8,
 	},
-	teammatesBox: {
-		borderWidth: 1,
-		borderColor: colors.mafia.primary,
-		borderRadius: 10,
-		padding: 12,
-		width: '100%',
-		marginTop: 8,
-		marginBottom: 8,
-	},
-	teammatesLabel: {
-		fontFamily: fonts.heading,
-		fontSize: 11,
-		color: colors.mafia.light,
-		letterSpacing: 2,
-		marginBottom: 4,
-	},
-	teammatesText: {
-		fontFamily: fonts.body,
-		fontSize: 16,
-		color: colors.text.primary,
-	},
 	warning: {
 		fontFamily: fonts.body,
-		fontSize: 13,
+		fontSize: 14,
 		color: colors.text.muted,
 		marginTop: 12,
 		textAlign: 'center',
 	},
 	scanAgainBtn: {
-		backgroundColor: colors.bg.card,
-		borderWidth: 1,
-		borderColor: colors.gold.dark,
-		borderRadius: 12,
-		paddingHorizontal: 32,
-		paddingVertical: 14,
 		marginTop: 24,
-	},
-	scanAgainBtnText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.gold.primary,
-		letterSpacing: 1,
 	},
 });

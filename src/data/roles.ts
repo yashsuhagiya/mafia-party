@@ -1,3 +1,5 @@
+import type { Ionicons } from '@expo/vector-icons';
+
 export type Team = 'mafia' | 'village' | 'neutral';
 
 export type NightActionType =
@@ -13,7 +15,7 @@ export interface RoleDefinition {
 	id: string;
 	name: string;
 	team: Team;
-	icon: string; // Emoji icon for the role
+	icon: keyof typeof Ionicons.glyphMap;
 	description: string;
 	nightAction?: NightActionType;
 	nightOrder: number; // Order in which this role acts at night (lower = earlier)
@@ -28,7 +30,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'godfather',
 		name: 'Godfather',
 		team: 'mafia',
-		icon: '🎩',
+		icon: 'rose',
 		description: 'The leader of the mafia. Appears innocent to the Police.',
 		nightAction: 'kill',
 		nightOrder: 1,
@@ -42,7 +44,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'mafia',
 		name: 'Mafia',
 		team: 'mafia',
-		icon: '🔪',
+		icon: 'cut',
 		description:
 			'A member of the mafia. Works with the team to eliminate villagers at night.',
 		nightAction: 'kill',
@@ -55,7 +57,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'silencer',
 		name: 'Silencer',
 		team: 'mafia',
-		icon: '🤐',
+		icon: 'volume-mute',
 		description:
 			'A mafia member who can silence a player, preventing them from speaking during the next day.',
 		nightAction: 'silence',
@@ -70,7 +72,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'villager',
 		name: 'Villager',
 		team: 'village',
-		icon: '🏘️',
+		icon: 'home',
 		description:
 			'An ordinary townsperson. Uses observation and deduction to find the mafia.',
 		nightOrder: 99,
@@ -82,7 +84,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'police',
 		name: 'Police',
 		team: 'village',
-		icon: '🔍',
+		icon: 'search',
 		description:
 			'The town investigator. Can check one player each night to learn their alignment.',
 		nightAction: 'investigate',
@@ -95,7 +97,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'doctor',
 		name: 'Doctor',
 		team: 'village',
-		icon: '💊',
+		icon: 'medkit',
 		description:
 			'The town healer. Can protect one player from elimination each night.',
 		nightAction: 'save',
@@ -108,7 +110,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'bodyguard',
 		name: 'Bodyguard',
 		team: 'village',
-		icon: '🛡️',
+		icon: 'shield',
 		description: 'A protector who dies in place of their guarded target.',
 		nightAction: 'guard',
 		nightOrder: 4,
@@ -120,20 +122,20 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'vigilante',
 		name: 'Vigilante',
 		team: 'village',
-		icon: '⚔️',
+		icon: 'locate',
 		description:
 			'A village member who takes justice into their own hands. Can kill one player at night.',
 		nightAction: 'vigilante_kill',
 		nightOrder: 6,
 		playerTip:
-			'You can kill at night, but choose carefully — killing a fellow villager hurts your team!',
+			'You can kill at night, but choose carefully — killing a fellow villager hurts your team.',
 		godTip: 'Vigilante chooses a target to kill. This kill is separate from the mafia kill. Friendly fire is possible.',
 	},
 	mayor: {
 		id: 'mayor',
 		name: 'Mayor',
 		team: 'village',
-		icon: '👑',
+		icon: 'podium',
 		description:
 			'The elected leader of the town. Their vote counts double during day eliminations.',
 		nightOrder: 99,
@@ -148,21 +150,21 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'jester',
 		name: 'Jester',
 		team: 'neutral',
-		icon: '🃏',
+		icon: 'happy',
 		description:
 			'A wildcard who wins by getting voted out during the day. Loves chaos.',
 		nightOrder: 99,
 		passiveAbility:
 			'Wins the game if eliminated by town vote (not by mafia or vigilante).',
 		playerTip:
-			'Act suspicious! Get the town to vote you out. If you succeed, you win regardless of who else wins.',
+			'Act suspicious. Get the town to vote you out. If you succeed, you win regardless of who else wins.',
 		godTip: 'If the Jester is voted out during the day, announce that the Jester wins. The game may continue for remaining players.',
 	},
 	serialKiller: {
 		id: 'serialKiller',
 		name: 'Serial Killer',
 		team: 'neutral',
-		icon: '🗡️',
+		icon: 'skull',
 		description:
 			'An independent killer who acts alone at night. Wins by being the last one standing.',
 		nightAction: 'serial_kill',
@@ -176,7 +178,7 @@ export const ROLES: Record<string, RoleDefinition> = {
 		id: 'survivor',
 		name: 'Survivor',
 		team: 'neutral',
-		icon: '🏃',
+		icon: 'footsteps',
 		description:
 			'Just wants to live. Wins if alive when the game ends, regardless of which team wins.',
 		nightOrder: 99,

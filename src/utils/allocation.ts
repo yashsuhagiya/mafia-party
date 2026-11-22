@@ -1,12 +1,25 @@
 import { ROLES, type RoleDefinition } from '../data/roles';
 
+// ponytail: platform CSPRNG where it exists (every browser; this app ships as web).
+// Falls back to Math.random on runtimes without crypto (Hermes) — fine for a party
+// game, ceiling is a player with a debugger. Upgrade path: expo-crypto (native build).
+function randomInt(n: number): number {
+	const c = globalThis.crypto;
+	if (!c?.getRandomValues) return Math.floor(Math.random() * n);
+	const limit = 0x100000000 - (0x100000000 % n); // rejection sampling, no modulo bias
+	const buf = new Uint32Array(1);
+	do c.getRandomValues(buf);
+	while (buf[0] >= limit);
+	return buf[0] % n;
+}
+
 /**
  * Shuffles an array in place using Fisher-Yates algorithm.
  */
 function shuffle<T>(array: T[]): T[] {
 	const arr = [...array];
 	for (let i = arr.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
+		const j = randomInt(i + 1);
 		[arr[i], arr[j]] = [arr[j], arr[i]];
 	}
 	return arr;

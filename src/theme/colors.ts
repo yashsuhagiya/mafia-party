@@ -1,67 +1,70 @@
-// Moonlit Ash — Cool gray + pale moonlight blue
+// Black — neutral greys, off-white actions, team colours carry the only hue
 export const colors = {
-	// Backgrounds — ash gray tones
+	// Backgrounds — pure black base, neutral grey steps
 	bg: {
-		primary: '#0e1114', // Deep charcoal
-		secondary: '#151a1e', // Slightly lighter ash
-		card: '#1c2228', // Card surface
-		elevated: '#242c33', // Elevated surfaces
-		overlay: 'rgba(8,12,16,0.85)', // Modal overlays
+		primary: '#000000',
+		secondary: '#0a0a0a', // Tab bar, pinned footers
+		card: '#141414',
+		elevated: '#1f1f1f',
+		overlay: 'rgba(0,0,0,0.85)',
 	},
 
-	// Accent colors — pale moonlight blue
-	gold: {
-		primary: '#8bb8d0', // Pale ice blue — main accent
-		light: '#a8d4ec', // Lighter moonlight
-		dark: '#5e8fa8', // Deeper steel blue
-		muted: 'rgba(139,184,208,0.15)', // Blue with opacity
+	// Accent — off-white: primary button, active tab, selection
+	accent: {
+		primary: '#ededed',
+		light: '#ffffff',
+		dark: '#a3a3a3',
+		muted: 'rgba(255,255,255,0.10)', // Selection fill
 	},
 
-	// Team colors
+	// Team colors — `primary` is readable as text/icons on black and cards
 	mafia: {
-		primary: '#9b3a3a', // Muted crimson
-		light: '#c25050', // Brighter crimson
-		dark: '#6e2020', // Deep crimson
-		bg: 'rgba(155,58,58,0.10)', // Red tinted background
+		primary: '#e5484d', // Blood red
+		light: '#f2777a',
+		dark: '#b3261e', // Destructive button fill (white text 5.6:1)
+		bg: 'rgba(229,72,77,0.12)',
 	},
 	village: {
-		primary: '#4a90a8', // Frosty teal
-		light: '#6ab0c8', // Lighter teal
-		dark: '#2a6a80', // Deep teal
-		bg: 'rgba(74,144,168,0.10)', // Teal tinted background
+		primary: '#6fae6f', // Field green
+		light: '#8fc98f',
+		dark: '#3d6b3d',
+		bg: 'rgba(111,174,111,0.12)',
 	},
 	neutral: {
-		primary: '#7a6a8a', // Misty lavender
-		light: '#9a8aaa', // Lighter lavender
-		dark: '#5a4a6a', // Deep lavender
-		bg: 'rgba(122,106,138,0.10)', // Lavender tinted background
+		primary: '#d4a24c', // Amber
+		light: '#e6bd73',
+		dark: '#8a6420',
+		bg: 'rgba(212,162,76,0.12)',
 	},
+
+	// Hairline border
+	border: 'rgba(255,255,255,0.10)',
 
 	// Text
 	text: {
-		primary: '#d8dee6', // Cool off-white
-		secondary: '#8a929c', // Muted cool gray
-		muted: '#4a525c', // Very muted
-		inverse: '#0e1114', // Dark text on light bg
+		primary: '#ededed',
+		secondary: '#a3a3a3', // 7.3:1 on card
+		muted: '#808080', // 4.7:1 on card — not on bg.elevated
+		inverse: '#000000', // Text on off-white buttons
 	},
 
 	// Functional
-	alive: '#4a8a6a', // Muted sage green
-	dead: '#3a2a30', // Muted ash-gray
-	danger: '#c25050', // Alert crimson
-	success: '#4a8a6a', // Sage green
-	warning: '#c8a860', // Pale amber warning
+	alive: '#6fae6f',
+	dead: '#2a2a2a',
+	danger: '#e5484d',
+	success: '#6fae6f',
+	warning: '#d4a24c',
 
 	// Phase-specific
 	night: {
-		bg: '#080c10', // Near-black blue
-		glow: '#6aa0c0', // Cold moonlight glow
-		text: '#8aaabe', // Dim blue-gray text
+		bg: '#000000',
+		glow: '#ededed',
+		text: '#a3a3a3',
 	},
 	day: {
-		bg: '#151a1e', // Ash base
-		glow: '#a8d4ec', // Bright moonlight
-		text: '#d8dee6', // Crisp cool text
+		bg: '#0a0a0a',
+		glow: '#ededed',
+		text: '#ededed',
 	},
 } as const;
 

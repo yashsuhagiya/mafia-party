@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type { NightActionType, RoleDefinition, Team } from '../data/roles';
 
 export type GamePhase = 'setup' | 'reveal' | 'night' | 'day' | 'ended';
@@ -41,9 +43,6 @@ interface GameState {
 	// Reveal tracking
 	revealIndex: number;
 
-	// Night phase tracking
-	currentNightStep: number;
-
 	// Actions
 	setPlayerNames: (names: string[]) => void;
 	addPlayerName: (name: string) => void;
@@ -57,12 +56,11 @@ interface GameState {
 
 	// Reveal
 	nextReveal: () => void;
-	resetReveal: () => void;
 
 	// Night
 	addNightAction: (action: NightAction) => void;
+	removeNightAction: (roleId: string) => void;
 	clearNightActions: () => void;
-	setCurrentNightStep: (step: number) => void;
 
 	// Day
 	eliminatePlayer: (
@@ -77,86 +75,10 @@ interface GameState {
 	resetGame: () => void;
 }
 
-export const useGameStore = create<GameState>((set, _get) => ({
-	players: [],
-	phase: 'setup',
-	round: 0,
-	nightActions: [],
-	eliminationLog: [],
-	winner: null,
-	winMessage: '',
-
-	playerNames: [],
-	roleConfig: {},
-
-	revealIndex: 0,
-	currentNightStep: 0,
-
-	setPlayerNames: (names) => set({ playerNames: names }),
-	addPlayerName: (name) =>
-		set((s) => ({ playerNames: [...s.playerNames, name] })),
-	removePlayerName: (index) =>
-		set((s) => ({
-			playerNames: s.playerNames.filter((_, i) => i !== index),
-		})),
-	setRoleConfig: (config) => set({ roleConfig: config }),
-	updateRoleCount: (roleId, count) =>
-		set((s) => ({
-			roleConfig: { ...s.roleConfig, [roleId]: Math.max(0, count) },
-		})),
-
-	startGame: (players) =>
-		set({
-			players,
-			phase: 'reveal',
-			round: 1,
-			nightActions: [],
-			eliminationLog: [],
-			winner: null,
-			winMessage: '',
-			revealIndex: 0,
-			currentNightStep: 0,
-		}),
-
-	setPhase: (phase) => set({ phase }),
-	nextRound: () => set((s) => ({ round: s.round + 1 })),
-
-	nextReveal: () => set((s) => ({ revealIndex: s.revealIndex + 1 })),
-	resetReveal: () => set({ revealIndex: 0 }),
-
-	addNightAction: (action) =>
-		set((s) => ({ nightActions: [...s.nightActions, action] })),
-	clearNightActions: () => set({ nightActions: [] }),
-	setCurrentNightStep: (step) => set({ currentNightStep: step }),
-
-	eliminatePlayer: (playerId, method) =>
-		set((s) => ({
-			players: s.players.map((p) =>
-				p.id === playerId ? { ...p, alive: false } : p,
-			),
-			eliminationLog: [
-				...s.eliminationLog,
-				{ round: s.round, playerId, method },
-			],
-		})),
-
-	silencePlayer: (playerId) =>
-		set((s) => ({
-			players: s.players.map((p) =>
-				p.id === playerId ? { ...p, silenced: true } : p,
-			),
-		})),
-
-	clearSilence: () =>
-		set((s) => ({
-			players: s.players.map((p) => ({ ...p, silenced: false })),
-		})),
-
-	endGame: (winner, message) =>
-		set({ phase: 'ended', winner, winMessage: message }),
-
-	resetGame: () =>
-		set({
+// ponytail: only store data is restored. Screen-local state (night step, day stage, timer) is not: a restored night restarts at step 1 (NightPhaseScreen clears nightActions on mount), a restored day restarts at the announcement unless today's vote already happened. Players embed their full role definition, so bump version if Player/RoleDefinition changes shape.
+export const useGameStore = create<GameState>()(
+	persist(
+		(set) => ({
 			players: [],
 			phase: 'setup',
 			round: 0,
@@ -164,9 +86,106 @@ export const useGameStore = create<GameState>((set, _get) => ({
 			eliminationLog: [],
 			winner: null,
 			winMessage: '',
+
 			playerNames: [],
 			roleConfig: {},
+
 			revealIndex: 0,
-			currentNightStep: 0,
+
+			setPlayerNames: (names) => set({ playerNames: names }),
+			addPlayerName: (name) =>
+				set((s) => ({ playerNames: [...s.playerNames, name] })),
+			removePlayerName: (index) =>
+				set((s) => ({
+					playerNames: s.playerNames.filter((_, i) => i !== index),
+				})),
+			setRoleConfig: (config) => set({ roleConfig: config }),
+			updateRoleCount: (roleId, count) =>
+				set((s) => ({
+					roleConfig: {
+						...s.roleConfig,
+						[roleId]: Math.max(0, count),
+					},
+				})),
+
+			startGame: (players) =>
+				set({
+					players,
+					phase: 'reveal',
+					round: 1,
+					nightActions: [],
+					eliminationLog: [],
+					winner: null,
+					winMessage: '',
+					revealIndex: 0,
+				}),
+
+			setPhase: (phase) => set({ phase }),
+			nextRound: () => set((s) => ({ round: s.round + 1 })),
+
+			nextReveal: () => set((s) => ({ revealIndex: s.revealIndex + 1 })),
+
+			addNightAction: (action) =>
+				set((s) => ({
+					nightActions: [
+						...s.nightActions.filter(
+							(a) => a.roleId !== action.roleId,
+						),
+						action,
+					],
+				})),
+			removeNightAction: (roleId) =>
+				set((s) => ({
+					nightActions: s.nightActions.filter(
+						(a) => a.roleId !== roleId,
+					),
+				})),
+			clearNightActions: () => set({ nightActions: [] }),
+
+			eliminatePlayer: (playerId, method) =>
+				set((s) => ({
+					players: s.players.map((p) =>
+						p.id === playerId ? { ...p, alive: false } : p,
+					),
+					eliminationLog: [
+						...s.eliminationLog,
+						{ round: s.round, playerId, method },
+					],
+				})),
+
+			silencePlayer: (playerId) =>
+				set((s) => ({
+					players: s.players.map((p) =>
+						p.id === playerId ? { ...p, silenced: true } : p,
+					),
+				})),
+
+			clearSilence: () =>
+				set((s) => ({
+					players: s.players.map((p) => ({ ...p, silenced: false })),
+				})),
+
+			endGame: (winner, message) =>
+				set({ phase: 'ended', winner, winMessage: message }),
+
+			resetGame: () =>
+				set({
+					players: [],
+					phase: 'setup',
+					round: 0,
+					nightActions: [],
+					eliminationLog: [],
+					winner: null,
+					winMessage: '',
+					playerNames: [],
+					roleConfig: {},
+					revealIndex: 0,
+				}),
 		}),
-}));
+		{
+			name: 'mafia-game',
+			version: 1,
+			storage: createJSONStorage(() => AsyncStorage),
+		},
+	),
+);

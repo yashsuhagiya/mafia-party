@@ -1,110 +1,63 @@
-# Mafia Party 🎭
+# Mafia Party
 
-A thrilling digital Mafia game perfect for virtual game nights and gatherings! Create exciting Mafia games with friends and family.
+A moderator app for in-person Mafia games. One person, the narrator, keeps it open on their phone and the app handles everything they would otherwise track on paper: dealing roles, running each night, resolving kills and saves, the day vote and checking who has won.
 
-## Features
+It runs in any mobile browser. Players don't need the app; the narrator reads everything out loud.
 
-- 🎮 Interactive game creation and management
-- 👥 Role assignment system with classic Mafia roles
-- 📱 Mobile-responsive design
-- 🎨 Beautiful, modern UI with smooth animations
-- 🔄 Real-time game state management with Redux
+## How a game goes
 
-## Tech Stack
+1. **Setup.** Add players by name or pick them from the saved friends list. Choose roles by hand, start from a preset (8, 10, 12 or 15 players), or tap Auto balance. The game needs 5 to 15 players, and the role count must match the player count.
+2. **Roles.** Roles are shuffled and dealt. The narrator sees a list of every player with their role and team, and tells each player theirs privately.
+3. **Night.** The app steps through every role that acts at night (Mafia, Doctor, Police, Bodyguard, Vigilante, Serial Killer, Silencer) and the narrator records each choice. Back undoes the last step. The results screen shows who died, who was saved, the police result and who is silenced.
+4. **Day.** The night's deaths are announced, then a discussion timer runs. The narrator records the town's vote, or no elimination.
+5. **End.** The app checks the win conditions after every night and every vote, then shows the winner and the full roster. Finished games are saved to History.
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Redux Toolkit
-- **Icons**: FontAwesome
-- **Package Manager**: pnpm
+The game is saved in the browser, so refreshing the page or closing the tab resumes where you left off. The town board button in the header shows who is alive and dead without revealing roles, so it is safe to show the table.
 
-## Getting Started
+## Roles
 
-### Prerequisites
+| Team | Roles |
+|---|---|
+| Mafia | Godfather (appears innocent to Police), Mafia, Silencer |
+| Village | Villager, Police, Doctor, Bodyguard, Vigilante, Mayor (vote counts double) |
+| Neutral | Jester (wins if voted out), Serial Killer, Survivor |
 
-- Node.js 18+ 
-- pnpm (recommended) or npm
+Every role, with tips for players and the narrator, is in Settings → Roles guide.
 
-### Installation
+## Running it
 
-1. Clone the repository:
+Requires Node.js 22.18 or later (the shuffle check runs TypeScript directly).
+
 ```bash
-git clone https://github.com/yashsuhagiya/mafia-party.git
-cd mafia-party
-```
-
-2. Install dependencies:
-```bash
-pnpm install
-# or
 npm install
+npx expo start --web      # dev server, opens in the browser
+npm run build:web         # production build into dist/
 ```
 
-3. Run the development server:
+`dist/` is a static site; any static host works. `vercel.json` is set up for Vercel.
+
+The project is an Expo (React Native) app, so it also runs on iOS and Android with `npx expo start --ios` / `--android`, but it is built and tested for the web.
+
+## Checks
+
 ```bash
-pnpm dev
-# or
-npm run dev
+npx tsc --noEmit                  # types
+npx biome check src App.tsx       # lint and format
+node scripts/check-allocation.mjs # role shuffle is a fair permutation
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Customising
 
-## Available Scripts
+- **Friends list:** `src/data/friends.ts`
+- **Roles and presets:** `src/data/roles.ts`
+- **Night resolution order:** `src/utils/nightResolver.ts`
+- **Win conditions:** `src/utils/winCondition.ts`
+- **Colours:** `src/theme/colors.ts`
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
+## Stack
 
-## Game Rules
-
-### Roles Available:
-- **Mafia**: Eliminate villagers during night phases
-- **Villagers**: Vote to eliminate suspected mafia during day phases
-- **Detective**: Investigate players to discover their roles
-- **Doctor**: Protect players from elimination
-- **Mayor**: Has double voting power
-
-## How to Play
-
-1. **Setup**: Create a game and assign roles to players
-2. **Night Phase**: Mafia chooses targets, Doctor protects, Detective investigates
-3. **Day Phase**: All players discuss and vote to eliminate suspects
-4. **Win Conditions**: 
-   - Villagers win by eliminating all Mafia
-   - Mafia wins by equaling or outnumbering Villagers
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a Pull Request
-
-## Deployment
-
-This project is optimized for deployment on Vercel:
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy automatically with each push to main
+Expo SDK 54, React Native with react-native-web, React Navigation, Zustand (persisted to localStorage), TypeScript, Biome.
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
-
-## Support
-
-If you encounter any issues or have questions, please open an issue on GitHub.
-
----
-
-Made with ❤️ for game night enthusiasts!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT. See [LICENSE](LICENSE).

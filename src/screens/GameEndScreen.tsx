@@ -1,12 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import {
-	ScrollView,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Button from '../components/Button';
+import { ROLES } from '../data/roles';
 import type { GameEndNavigationProp } from '../navigation/types';
 import { useGameStore } from '../store/gameStore';
 import { useHistoryStore } from '../store/historyStore';
@@ -24,16 +21,21 @@ export default function GameEndScreen() {
 	const tc = winner ? teamColor(winner) : colors.village;
 	const winnerLabel =
 		winner === 'mafia'
-			? 'MAFIA WINS'
+			? 'Mafia wins'
 			: winner === 'village'
-				? 'VILLAGE WINS'
-				: 'NEUTRAL WINS';
+				? 'Village wins'
+				: 'Neutral wins';
 
 	const winnerIcon =
-		winner === 'mafia' ? '🔪' : winner === 'village' ? '🏘️' : '🃏';
+		ROLES[
+			winner === 'mafia'
+				? 'mafia'
+				: winner === 'village'
+					? 'villager'
+					: 'jester'
+		].icon;
 
-	const handleNewGame = () => {
-		// Save to history
+	const saveGame = () => {
 		addGame({
 			id: Date.now().toString(),
 			date: new Date().toISOString(),
@@ -46,25 +48,16 @@ export default function GameEndScreen() {
 			rounds: round,
 			winner: winner ?? 'village',
 		});
+	};
 
+	const handleNewGame = () => {
+		saveGame();
 		resetGame();
 		navigation.navigate('Setup');
 	};
 
 	const handlePlayAgain = () => {
-		// Save and restart with same players
-		addGame({
-			id: Date.now().toString(),
-			date: new Date().toISOString(),
-			players: players.map((p) => ({
-				name: p.name,
-				role: p.role.name,
-				team: p.role.team,
-				survived: p.alive,
-			})),
-			rounds: round,
-			winner: winner ?? 'village',
-		});
+		saveGame();
 
 		// Keep player names but reset everything else
 		const names = players.map((p) => p.name);
@@ -76,10 +69,16 @@ export default function GameEndScreen() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView contentContainerStyle={styles.content}>
-				<Text style={styles.gameOver}>GAME OVER</Text>
+				<Text style={styles.gameOver}>Game over</Text>
 
 				<View style={[styles.winnerCard, { borderColor: tc.primary }]}>
-					<Text style={styles.winnerIcon}>{winnerIcon}</Text>
+					<View style={styles.winnerIcon}>
+						<Ionicons
+							name={winnerIcon}
+							size={56}
+							color={tc.primary}
+						/>
+					</View>
 					<Text style={[styles.winnerText, { color: tc.primary }]}>
 						{winnerLabel}
 					</Text>
@@ -88,7 +87,7 @@ export default function GameEndScreen() {
 				</View>
 
 				{/* All players with roles revealed */}
-				<Text style={styles.sectionTitle}>FINAL ROSTER</Text>
+				<Text style={styles.sectionTitle}>Final roster</Text>
 				{players.map((player) => {
 					const ptc = teamColor(player.role.team);
 					return (
@@ -99,9 +98,13 @@ export default function GameEndScreen() {
 								!player.alive && styles.playerRowDead,
 							]}
 						>
-							<Text style={styles.playerIcon}>
-								{player.role.icon}
-							</Text>
+							<View style={styles.playerIcon}>
+								<Ionicons
+									name={player.role.icon}
+									size={24}
+									color={ptc.primary}
+								/>
+							</View>
 							<View style={styles.playerInfo}>
 								<Text
 									style={[
@@ -120,32 +123,31 @@ export default function GameEndScreen() {
 									{player.role.name}
 								</Text>
 							</View>
-							<Text style={styles.statusIcon}>
-								{player.alive ? '✓' : '💀'}
-							</Text>
+							<Ionicons
+								name={player.alive ? 'checkmark' : 'close'}
+								size={20}
+								color={
+									player.alive
+										? colors.success
+										: colors.text.muted
+								}
+							/>
 						</View>
 					);
 				})}
 
 				<View style={styles.actions}>
-					<TouchableOpacity
-						style={styles.playAgainBtn}
+					<Button
+						label="Play again (same players)"
 						onPress={handlePlayAgain}
 						accessibilityLabel="Play again with same players"
-						accessibilityRole="button"
-					>
-						<Text style={styles.playAgainText}>
-							PLAY AGAIN (SAME PLAYERS)
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.newGameBtn}
+					/>
+					<Button
+						label="New game"
+						variant="secondary"
 						onPress={handleNewGame}
 						accessibilityLabel="Start new game"
-						accessibilityRole="button"
-					>
-						<Text style={styles.newGameText}>NEW GAME</Text>
-					</TouchableOpacity>
+					/>
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -163,33 +165,30 @@ const styles = StyleSheet.create({
 	},
 	gameOver: {
 		fontFamily: fonts.heading,
-		fontSize: 37,
-		color: colors.gold.primary,
-		letterSpacing: 4,
+		fontSize: 40,
+		color: colors.text.primary,
 		marginTop: 20,
 		marginBottom: 24,
 	},
 	winnerCard: {
 		backgroundColor: colors.bg.card,
-		borderWidth: 2,
-		borderRadius: 20,
+		borderWidth: 1,
+		borderRadius: 14,
 		padding: 32,
 		alignItems: 'center',
 		width: '100%',
 		marginBottom: 32,
 	},
 	winnerIcon: {
-		fontSize: 65,
 		marginBottom: 16,
 	},
 	winnerText: {
 		fontFamily: fonts.heading,
-		fontSize: 29,
-		letterSpacing: 2,
+		fontSize: 32,
 	},
 	winMessage: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.secondary,
 		textAlign: 'center',
 		marginTop: 8,
@@ -197,15 +196,14 @@ const styles = StyleSheet.create({
 	},
 	roundCount: {
 		fontFamily: fonts.body,
-		fontSize: 15,
+		fontSize: 14,
 		color: colors.text.muted,
 		marginTop: 8,
 	},
 	sectionTitle: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.gold.primary,
-		letterSpacing: 2,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 14,
+		color: colors.text.secondary,
 		alignSelf: 'flex-start',
 		marginBottom: 12,
 	},
@@ -214,7 +212,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: colors.bg.card,
 		borderRadius: 10,
-		padding: 14,
+		padding: 12,
 		width: '100%',
 		marginBottom: 8,
 	},
@@ -222,15 +220,15 @@ const styles = StyleSheet.create({
 		opacity: 0.5,
 	},
 	playerIcon: {
-		fontSize: 25,
+		width: 24,
 		marginRight: 12,
 	},
 	playerInfo: {
 		flex: 1,
 	},
 	playerName: {
-		fontFamily: fonts.bodyBold,
-		fontSize: 17,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 16,
 		color: colors.text.primary,
 	},
 	playerNameDead: {
@@ -239,41 +237,12 @@ const styles = StyleSheet.create({
 	playerRole: {
 		fontFamily: fonts.body,
 		fontSize: 14,
-		marginTop: 2,
-	},
-	statusIcon: {
-		fontSize: 21,
+		marginTop: 4,
 	},
 	actions: {
 		width: '100%',
 		gap: 12,
 		marginTop: 24,
 		marginBottom: 40,
-	},
-	playAgainBtn: {
-		backgroundColor: colors.gold.dark,
-		borderRadius: 12,
-		padding: 16,
-		alignItems: 'center',
-	},
-	playAgainText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.bg.primary,
-		letterSpacing: 1,
-	},
-	newGameBtn: {
-		backgroundColor: colors.bg.card,
-		borderWidth: 1,
-		borderColor: colors.gold.dark,
-		borderRadius: 12,
-		padding: 16,
-		alignItems: 'center',
-	},
-	newGameText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.gold.primary,
-		letterSpacing: 1,
 	},
 });
