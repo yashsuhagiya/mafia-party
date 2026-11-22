@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScanScreen from '../screens/ScanScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SetupScreen from '../screens/SetupScreen';
+import { useSettingsStore } from '../store/settingsStore';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
 import GameStackNavigator from './GameStackNavigator';
@@ -26,6 +27,7 @@ const TAB_ICONS: Record<
 
 export default function TabNavigator() {
 	const insets = useSafeAreaInsets();
+	const revealMode = useSettingsStore((s) => s.revealMode);
 
 	return (
 		<Tab.Navigator
@@ -33,18 +35,17 @@ export default function TabNavigator() {
 				headerShown: false,
 				tabBarStyle: {
 					backgroundColor: colors.bg.secondary,
-					borderTopColor: colors.gold.dark,
+					borderTopColor: colors.border,
 					borderTopWidth: 1,
 					paddingTop: 8,
 					height: 60 + insets.bottom,
 					paddingBottom: insets.bottom,
 				},
-				tabBarActiveTintColor: colors.gold.primary,
+				tabBarActiveTintColor: colors.accent.primary,
 				tabBarInactiveTintColor: colors.text.muted,
 				tabBarLabelStyle: {
-					fontFamily: fonts.heading,
-					fontSize: 11,
-					letterSpacing: 1,
+					fontFamily: fonts.bodyMedium,
+					fontSize: 12,
 				},
 				tabBarIcon: ({ focused, color }) => {
 					const icons = TAB_ICONS[route.name];
@@ -55,7 +56,9 @@ export default function TabNavigator() {
 		>
 			<Tab.Screen name="Setup" component={SetupScreen} />
 			<Tab.Screen name="Game" component={GameStackNavigator} />
-			<Tab.Screen name="Scan" component={ScanScreen} />
+			{revealMode === 'qr' && (
+				<Tab.Screen name="Scan" component={ScanScreen} />
+			)}
 			<Tab.Screen name="Settings" component={SettingsScreen} />
 		</Tab.Navigator>
 	);

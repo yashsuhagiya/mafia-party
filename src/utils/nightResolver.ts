@@ -48,7 +48,7 @@ export function resolveNight(
 		mafiaTargetSaved = true;
 		result.saved.push(mafiaTargetId);
 		const savedPlayer = getPlayer(mafiaTargetId);
-		result.details.push(`Doctor saved ${savedPlayer?.name || 'unknown'}!`);
+		result.details.push(`Doctor saved ${savedPlayer?.name || 'unknown'}`);
 	}
 
 	// 3. Bodyguard
@@ -70,7 +70,7 @@ export function resolveNight(
 				method: 'mafia',
 			});
 			result.details.push(
-				`${bodyguard.name} (Bodyguard) died protecting ${getPlayer(mafiaTargetId)?.name}!`,
+				`${bodyguard.name} (Bodyguard) died protecting ${getPlayer(mafiaTargetId)?.name}`,
 			);
 			mafiaTargetSaved = true; // Target was saved by bodyguard's sacrifice
 			result.saved.push(mafiaTargetId);
@@ -99,7 +99,7 @@ export function resolveNight(
 		if (doctorSave && doctorSave.targetId === skTarget) {
 			result.saved.push(skTarget);
 			result.details.push(
-				`Doctor saved ${getPlayer(skTarget)?.name} from the Serial Killer!`,
+				`Doctor saved ${getPlayer(skTarget)?.name} from the Serial Killer`,
 			);
 		} else if (!result.eliminated.includes(skTarget)) {
 			result.eliminated.push(skTarget);
@@ -122,7 +122,7 @@ export function resolveNight(
 		if (doctorSave && doctorSave.targetId === vigTarget) {
 			result.saved.push(vigTarget);
 			result.details.push(
-				`Doctor saved ${getPlayer(vigTarget)?.name} from the Vigilante!`,
+				`Doctor saved ${getPlayer(vigTarget)?.name} from the Vigilante`,
 			);
 		} else if (!result.eliminated.includes(vigTarget)) {
 			result.eliminated.push(vigTarget);
@@ -149,7 +149,7 @@ export function resolveNight(
 			const isMafia = target.role.team === 'mafia' && !appearsInnocent;
 			result.policeResult = { targetId: target.id, isMafia };
 			result.details.push(
-				`Police investigated ${target.name}: ${isMafia ? 'MAFIA' : 'Not Mafia'}`,
+				`Police investigated ${target.name}: ${isMafia ? 'Mafia' : 'Not mafia'}`,
 			);
 		}
 	}

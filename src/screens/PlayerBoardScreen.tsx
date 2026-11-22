@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import {
 	ScrollView,
 	StyleSheet,
@@ -24,27 +25,27 @@ export default function PlayerBoardScreen() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView contentContainerStyle={styles.content}>
-				<Text style={styles.title}>TOWN BOARD</Text>
+				<Text style={styles.title}>Town board</Text>
 				<Text style={styles.roundText}>Round {round}</Text>
 
 				{/* Stats bar (God-only info is hidden — just alive count) */}
 				<View style={styles.statsRow}>
 					<View style={styles.statBox}>
 						<Text style={styles.statValue}>{alive.length}</Text>
-						<Text style={styles.statLabel}>ALIVE</Text>
+						<Text style={styles.statLabel}>Alive</Text>
 					</View>
 					<View style={styles.statBox}>
 						<Text style={styles.statValue}>{dead.length}</Text>
-						<Text style={styles.statLabel}>DEAD</Text>
+						<Text style={styles.statLabel}>Dead</Text>
 					</View>
 					<View style={styles.statBox}>
 						<Text style={styles.statValue}>{players.length}</Text>
-						<Text style={styles.statLabel}>TOTAL</Text>
+						<Text style={styles.statLabel}>Total</Text>
 					</View>
 				</View>
 
 				{/* Alive players */}
-				<Text style={styles.sectionTitle}>ALIVE</Text>
+				<Text style={styles.sectionTitle}>Alive</Text>
 				<View style={styles.grid}>
 					{alive.map((player) => (
 						<View
@@ -54,10 +55,20 @@ export default function PlayerBoardScreen() {
 								{ minWidth: (width - 60) / 3 },
 							]}
 						>
-							<Text style={styles.aliveIcon}>🤠</Text>
+							<Ionicons
+								name="person"
+								size={24}
+								color={colors.text.secondary}
+								style={styles.aliveIcon}
+							/>
 							<Text style={styles.aliveName}>{player.name}</Text>
 							{player.silenced && (
-								<Text style={styles.silencedBadge}>🤐</Text>
+								<Ionicons
+									name="volume-mute"
+									size={16}
+									color={colors.text.secondary}
+									style={styles.silencedBadge}
+								/>
 							)}
 						</View>
 					))}
@@ -66,7 +77,7 @@ export default function PlayerBoardScreen() {
 				{/* Dead players */}
 				{dead.length > 0 && (
 					<>
-						<Text style={styles.sectionTitle}>FALLEN</Text>
+						<Text style={styles.sectionTitle}>Fallen</Text>
 						<View style={styles.grid}>
 							{dead.map((player) => (
 								<View
@@ -76,7 +87,12 @@ export default function PlayerBoardScreen() {
 										{ minWidth: (width - 60) / 3 },
 									]}
 								>
-									<Text style={styles.deadIcon}>💀</Text>
+									<Ionicons
+										name="close"
+										size={24}
+										color={colors.text.muted}
+										style={styles.deadIcon}
+									/>
 									<Text style={styles.deadName}>
 										{player.name}
 									</Text>
@@ -101,15 +117,14 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: fonts.heading,
-		fontSize: 29,
-		color: colors.gold.primary,
-		letterSpacing: 3,
+		fontSize: 32,
+		color: colors.text.primary,
 		marginTop: 8,
 	},
 	roundText: {
 		fontFamily: fonts.body,
-		fontSize: 15,
-		color: colors.text.muted,
+		fontSize: 14,
+		color: colors.text.secondary,
 		marginBottom: 20,
 	},
 	statsRow: {
@@ -120,30 +135,28 @@ const styles = StyleSheet.create({
 	statBox: {
 		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.gold.muted,
-		borderRadius: 12,
+		borderColor: colors.border,
+		borderRadius: 14,
 		paddingHorizontal: 24,
-		paddingVertical: 14,
+		paddingVertical: 12,
 		alignItems: 'center',
 		flex: 1,
 	},
 	statValue: {
 		fontFamily: fonts.heading,
-		fontSize: 25,
-		color: colors.gold.primary,
+		fontSize: 24,
+		color: colors.text.primary,
 	},
 	statLabel: {
 		fontFamily: fonts.body,
-		fontSize: 11,
-		color: colors.text.muted,
-		letterSpacing: 1,
+		fontSize: 12,
+		color: colors.text.secondary,
 		marginTop: 4,
 	},
 	sectionTitle: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.gold.primary,
-		letterSpacing: 2,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 14,
+		color: colors.text.secondary,
 		alignSelf: 'flex-start',
 		marginBottom: 12,
 		marginTop: 8,
@@ -151,48 +164,45 @@ const styles = StyleSheet.create({
 	grid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 10,
+		gap: 8,
 		width: '100%',
 		marginBottom: 20,
 	},
 	aliveCard: {
 		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.alive,
-		borderRadius: 12,
+		borderColor: colors.border,
+		borderRadius: 14,
 		paddingHorizontal: 16,
-		paddingVertical: 14,
+		paddingVertical: 12,
 		alignItems: 'center',
 		flex: 1,
 	},
 	aliveIcon: {
-		fontSize: 29,
-		marginBottom: 6,
+		marginBottom: 8,
 	},
 	aliveName: {
-		fontFamily: fonts.bodyBold,
+		fontFamily: fonts.bodySemiBold,
 		fontSize: 14,
 		color: colors.text.primary,
 		textAlign: 'center',
 	},
 	silencedBadge: {
-		fontSize: 17,
 		marginTop: 4,
 	},
 	deadCard: {
 		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.dead,
-		borderRadius: 12,
+		borderColor: colors.border,
+		borderRadius: 14,
 		paddingHorizontal: 16,
-		paddingVertical: 14,
+		paddingVertical: 12,
 		alignItems: 'center',
 		flex: 1,
 		opacity: 0.5,
 	},
 	deadIcon: {
-		fontSize: 29,
-		marginBottom: 6,
+		marginBottom: 8,
 	},
 	deadName: {
 		fontFamily: fonts.body,

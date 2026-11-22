@@ -1,6 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	ScrollView,
 	StyleSheet,
@@ -9,19 +10,23 @@ import {
 	View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getNightActionRoles, type NightActionType } from '../data/roles';
+import Button from '../components/Button';
+import {
+	getNightActionRoles,
+	type NightActionType,
+	type RoleDefinition,
+} from '../data/roles';
 import type { GameStackParamList } from '../navigation/types';
 import { type NightAction, useGameStore } from '../store/gameStore';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
 import { type NightResult, resolveNight } from '../utils/nightResolver';
-import { playSound } from '../utils/sounds';
 import { checkWinCondition } from '../utils/winCondition';
 
 interface NightStep {
 	roleId: string;
 	roleName: string;
-	icon: string;
+	icon: RoleDefinition['icon'];
 	actionType: NightActionType;
 	prompt: string;
 	actorIds: string[]; // Players with this role who are alive
@@ -34,6 +39,7 @@ export default function NightPhaseScreen() {
 		players,
 		round,
 		addNightAction,
+		removeNightAction,
 		clearNightActions,
 		setPhase,
 		eliminatePlayer,
@@ -46,6 +52,11 @@ export default function NightPhaseScreen() {
 	const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
 	const [showResults, setShowResults] = useState(false);
 	const [nightResult, setNightResult] = useState<NightResult | null>(null);
+
+	// A restored night restarts at step 1, so drop any stale actions.
+	useEffect(() => {
+		clearNightActions();
+	}, [clearNightActions]);
 
 	const alivePlayers = players.filter((p) => p.alive);
 
@@ -64,9 +75,21 @@ export default function NightPhaseScreen() {
 				investigate: `${roleDef.name}, choose someone to investigate.`,
 				silence: `${roleDef.name}, choose someone to silence.`,
 				guard: `${roleDef.name}, choose someone to guard with your life.`,
-				vigilante_kill: `${roleDef.name}, choose your target. Choose wisely — friendly fire is possible.`,
+				vigilante_kill: `${roleDef.name}, choose your target. Choose wisely, friendly fire is possible.`,
 				serial_kill: `${roleDef.name}, choose your victim.`,
 			};
+
+			// Godfather and Mafia share the 'kill' action and the resolver only
+			// uses the first one, so ask God once for both.
+			const existing = steps.find(
+				(step) => step.actionType === roleDef.nightAction,
+			);
+			if (existing) {
+				existing.actorIds.push(...actors.map((a) => a.id));
+				existing.roleName = 'Mafia';
+				existing.prompt = 'Mafia, choose someone to eliminate.';
+				continue;
+			}
 
 			steps.push({
 				roleId: roleDef.id,
@@ -84,15 +107,20 @@ export default function NightPhaseScreen() {
 	const isLastStep = stepIndex >= nightSteps.length - 1;
 
 	const handleSelectTarget = (targetId: string) => {
-		playSound('target_select');
 		setSelectedTarget(targetId === selectedTarget ? null : targetId);
+	};
+
+	const resolveAndShow = () => {
+		const state = useGameStore.getState();
+		const result = resolveNight(state.players, state.nightActions, round);
+		setNightResult(result);
+		setShowResults(true);
 	};
 
 	const handleConfirm = () => {
 		if (!selectedTarget || !currentStep) return;
-		playSound('confirm');
 
-		// Add night action
+		// Add night action (replaces any earlier action for this role)
 		const action: NightAction = {
 			roleId: currentStep.roleId,
 			actionType: currentStep.actionType,
@@ -103,18 +131,7 @@ export default function NightPhaseScreen() {
 		setSelectedTarget(null);
 
 		if (isLastStep) {
-			// Resolve all night actions
-			const allActions = [
-				...useGameStore.getState().nightActions,
-				action,
-			];
-			const result = resolveNight(
-				useGameStore.getState().players,
-				allActions,
-				round,
-			);
-			setNightResult(result);
-			setShowResults(true);
+			resolveAndShow();
 		} else {
 			setStepIndex(stepIndex + 1);
 		}
@@ -122,16 +139,21 @@ export default function NightPhaseScreen() {
 
 	const handleSkipRole = () => {
 		if (isLastStep) {
-			const currentState = useGameStore.getState();
-			const result = resolveNight(
-				currentState.players,
-				currentState.nightActions,
-				round,
-			);
-			setNightResult(result);
-			setShowResults(true);
+			resolveAndShow();
 		} else {
 			setStepIndex(stepIndex + 1);
+		}
+	};
+
+	const handleBack = () => {
+		const target = showResults ? currentStep : nightSteps[stepIndex - 1];
+		if (target) removeNightAction(target.roleId);
+		setSelectedTarget(null);
+		if (showResults) {
+			setShowResults(false);
+			setNightResult(null);
+		} else {
+			setStepIndex(stepIndex - 1);
 		}
 	};
 
@@ -155,11 +177,9 @@ export default function NightPhaseScreen() {
 		const winState = checkWinCondition(useGameStore.getState().players);
 
 		if (winState.gameOver) {
-			playSound('victory');
 			endGame(winState.winner ?? 'village', winState.message);
 			navigation.replace('GameEnd');
 		} else {
-			playSound('day');
 			clearNightActions();
 			setPhase('day');
 			navigation.replace('DayPhase');
@@ -173,7 +193,7 @@ export default function NightPhaseScreen() {
 				style={[styles.container, { backgroundColor: colors.night.bg }]}
 			>
 				<ScrollView contentContainerStyle={styles.resultsContent}>
-					<Text style={styles.nightTitle}>NIGHT {round} RESULTS</Text>
+					<Text style={styles.nightTitle}>Night {round} results</Text>
 					<Text style={styles.subtitle}>For God's eyes only</Text>
 
 					{nightResult.details.map((detail: string) => (
@@ -185,7 +205,7 @@ export default function NightPhaseScreen() {
 					{nightResult.policeResult && (
 						<View style={styles.policeBox}>
 							<Text style={styles.policeLabel}>
-								POLICE INVESTIGATION
+								Police investigation
 							</Text>
 							<Text style={styles.policeResult}>
 								{
@@ -204,23 +224,26 @@ export default function NightPhaseScreen() {
 									}}
 								>
 									{nightResult.policeResult.isMafia
-										? 'MAFIA'
-										: 'NOT MAFIA'}
+										? 'Mafia'
+										: 'Not mafia'}
 								</Text>
 							</Text>
 						</View>
 					)}
 
-					<TouchableOpacity
-						style={styles.proceedBtn}
-						onPress={handleProceedToDay}
-						accessibilityLabel="Proceed to day phase"
-						accessibilityRole="button"
-					>
-						<Text style={styles.proceedBtnText}>
-							☀ PROCEED TO DAY
-						</Text>
-					</TouchableOpacity>
+					<View style={styles.actionRow}>
+						<Button
+							label="Back"
+							variant="secondary"
+							onPress={handleBack}
+							style={{ flex: 1 }}
+						/>
+						<Button
+							label="Proceed to day"
+							onPress={handleProceedToDay}
+							style={{ flex: 2 }}
+						/>
+					</View>
 				</ScrollView>
 			</SafeAreaView>
 		);
@@ -233,24 +256,18 @@ export default function NightPhaseScreen() {
 				style={[styles.container, { backgroundColor: colors.night.bg }]}
 			>
 				<View style={styles.center}>
-					<Text style={styles.nightTitle}>NIGHT {round}</Text>
+					<Text style={styles.nightTitle}>Night {round}</Text>
 					<Text style={styles.noActionsText}>
 						No roles with night actions remain alive.
 					</Text>
-					<TouchableOpacity
-						style={styles.proceedBtn}
+					<Button
+						label="Proceed to day"
 						onPress={() => {
 							clearSilence();
 							setPhase('day');
 							navigation.replace('DayPhase');
 						}}
-						accessibilityLabel="Proceed to day phase"
-						accessibilityRole="button"
-					>
-						<Text style={styles.proceedBtnText}>
-							☀ PROCEED TO DAY
-						</Text>
-					</TouchableOpacity>
+					/>
 				</View>
 			</SafeAreaView>
 		);
@@ -262,20 +279,26 @@ export default function NightPhaseScreen() {
 			style={[styles.container, { backgroundColor: colors.night.bg }]}
 		>
 			<ScrollView contentContainerStyle={styles.stepContent}>
-				<Text style={styles.nightTitle}>NIGHT {round}</Text>
+				<Text style={styles.nightTitle}>Night {round}</Text>
 				<Text style={styles.stepCounter}>
 					Step {stepIndex + 1} of {nightSteps.length}
 				</Text>
 
 				<View style={styles.roleHeader}>
-					<Text style={styles.roleIcon}>{currentStep.icon}</Text>
+					<View style={styles.roleIcon}>
+						<Ionicons
+							name={currentStep.icon}
+							size={40}
+							color={colors.night.text}
+						/>
+					</View>
 					<Text style={styles.roleName}>{currentStep.roleName}</Text>
 				</View>
 
 				<Text style={styles.prompt}>{currentStep.prompt}</Text>
 
 				{/* Target selection */}
-				<Text style={styles.selectLabel}>SELECT TARGET</Text>
+				<Text style={styles.selectLabel}>Select target</Text>
 				<View style={styles.targetGrid}>
 					{alivePlayers
 						.filter((p) => {
@@ -316,26 +339,28 @@ export default function NightPhaseScreen() {
 				</View>
 
 				<View style={styles.actionRow}>
-					<TouchableOpacity
-						style={styles.skipBtn}
+					{stepIndex > 0 && (
+						<Button
+							label="Back"
+							variant="secondary"
+							onPress={handleBack}
+							style={{ flex: 1 }}
+						/>
+					)}
+					<Button
+						label="Skip"
+						variant="secondary"
 						onPress={handleSkipRole}
 						accessibilityLabel="Skip this role's action"
-						accessibilityRole="button"
-					>
-						<Text style={styles.skipBtnText}>SKIP</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={[
-							styles.confirmBtn,
-							!selectedTarget && styles.confirmBtnDisabled,
-						]}
+						style={{ flex: 1 }}
+					/>
+					<Button
+						label="Confirm"
 						onPress={handleConfirm}
 						disabled={!selectedTarget}
 						accessibilityLabel="Confirm target selection"
-						accessibilityRole="button"
-					>
-						<Text style={styles.confirmBtnText}>CONFIRM</Text>
-					</TouchableOpacity>
+						style={{ flex: 2 }}
+					/>
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -362,21 +387,20 @@ const styles = StyleSheet.create({
 	},
 	nightTitle: {
 		fontFamily: fonts.heading,
-		fontSize: 33,
+		fontSize: 32,
 		color: colors.night.glow,
-		letterSpacing: 3,
 		marginTop: 20,
 	},
 	subtitle: {
 		fontFamily: fonts.body,
-		fontSize: 15,
+		fontSize: 14,
 		color: colors.night.text,
 		marginTop: 4,
 		marginBottom: 24,
 	},
 	stepCounter: {
 		fontFamily: fonts.body,
-		fontSize: 15,
+		fontSize: 14,
 		color: colors.text.muted,
 		marginTop: 4,
 		marginBottom: 24,
@@ -386,41 +410,39 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 	},
 	roleIcon: {
-		fontSize: 49,
 		marginBottom: 8,
 	},
 	roleName: {
 		fontFamily: fonts.heading,
-		fontSize: 25,
-		color: colors.night.glow,
+		fontSize: 24,
+		color: colors.text.primary,
 	},
 	prompt: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.night.text,
 		textAlign: 'center',
 		lineHeight: 24,
 		marginBottom: 24,
 	},
 	selectLabel: {
-		fontFamily: fonts.heading,
-		fontSize: 13,
-		color: colors.gold.dark,
-		letterSpacing: 2,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 14,
+		color: colors.text.secondary,
 		marginBottom: 12,
 		alignSelf: 'flex-start',
 	},
 	targetGrid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		gap: 10,
+		gap: 12,
 		width: '100%',
 		marginBottom: 24,
 	},
 	targetBtn: {
 		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.gold.muted,
+		borderColor: colors.border,
 		borderRadius: 10,
 		paddingHorizontal: 16,
 		paddingVertical: 12,
@@ -428,8 +450,8 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	targetBtnSelected: {
-		borderColor: colors.night.glow,
-		backgroundColor: 'rgba(201,132,42,0.15)',
+		borderColor: colors.accent.primary,
+		backgroundColor: colors.accent.muted,
 	},
 	targetName: {
 		fontFamily: fonts.body,
@@ -437,59 +459,30 @@ const styles = StyleSheet.create({
 		color: colors.text.secondary,
 	},
 	targetNameSelected: {
-		color: colors.night.glow,
-		fontFamily: fonts.bodyBold,
+		color: colors.text.primary,
+		fontFamily: fonts.bodySemiBold,
 	},
 	actionRow: {
 		flexDirection: 'row',
 		gap: 16,
 		width: '100%',
 	},
-	skipBtn: {
-		flex: 1,
-		backgroundColor: colors.bg.elevated,
-		borderWidth: 1,
-		borderColor: colors.text.muted,
-		borderRadius: 10,
-		padding: 16,
-		alignItems: 'center',
-	},
-	skipBtnText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.text.muted,
-	},
-	confirmBtn: {
-		flex: 2,
-		backgroundColor: colors.night.glow,
-		borderRadius: 10,
-		padding: 16,
-		alignItems: 'center',
-	},
-	confirmBtnDisabled: {
-		opacity: 0.4,
-	},
-	confirmBtnText: {
-		fontFamily: fonts.heading,
-		fontSize: 15,
-		color: colors.bg.primary,
-	},
 	resultItem: {
 		backgroundColor: colors.bg.card,
 		borderRadius: 10,
 		padding: 16,
 		width: '100%',
-		marginBottom: 10,
+		marginBottom: 12,
 	},
 	resultText: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.primary,
 		lineHeight: 24,
 	},
 	policeBox: {
 		borderWidth: 1,
-		borderColor: colors.village.primary,
+		borderColor: colors.border,
 		borderRadius: 10,
 		padding: 16,
 		width: '100%',
@@ -497,33 +490,19 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	policeLabel: {
-		fontFamily: fonts.heading,
+		fontFamily: fonts.bodySemiBold,
 		fontSize: 12,
-		color: colors.village.primary,
-		letterSpacing: 2,
-		marginBottom: 6,
+		color: colors.text.secondary,
+		marginBottom: 8,
 	},
 	policeResult: {
-		fontFamily: fonts.bodyBold,
-		fontSize: 19,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 20,
 		color: colors.text.primary,
-	},
-	proceedBtn: {
-		backgroundColor: colors.day.glow,
-		borderRadius: 12,
-		paddingHorizontal: 32,
-		paddingVertical: 16,
-		marginTop: 16,
-	},
-	proceedBtnText: {
-		fontFamily: fonts.heading,
-		fontSize: 17,
-		color: colors.bg.primary,
-		letterSpacing: 1,
 	},
 	noActionsText: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.night.text,
 		textAlign: 'center',
 		marginVertical: 24,

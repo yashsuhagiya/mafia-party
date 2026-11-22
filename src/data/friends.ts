@@ -10,6 +10,7 @@ export const PREDEFINED_FRIENDS = [
 	'Pawan',
 	'Prathmesh',
 	'Priya',
+	'Purva',
 	'Raj',
 	'Rimpal',
 	'Rutuja',

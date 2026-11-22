@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-	Alert,
 	Modal,
 	ScrollView,
 	StyleSheet,
@@ -11,11 +10,16 @@ import {
 	View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import Button from '../components/Button';
 import { ROLE_LIST, type Team } from '../data/roles';
 import { useHistoryStore } from '../store/historyStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { colors, teamColor } from '../theme/colors';
 import { fonts } from '../theme/typography';
+import { confirm } from '../utils/confirm';
+
+const capitalize = (text: string) =>
+	text.charAt(0).toUpperCase() + text.slice(1);
 
 export default function SettingsScreen() {
 	const settings = useSettingsStore();
@@ -40,7 +44,7 @@ export default function SettingsScreen() {
 	return (
 		<SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
 			<ScrollView contentContainerStyle={styles.content}>
-				<Text style={styles.title}>SETTINGS</Text>
+				<Text style={styles.title}>Settings</Text>
 
 				{/* Quick links */}
 				<View style={styles.section}>
@@ -51,10 +55,10 @@ export default function SettingsScreen() {
 						<Ionicons
 							name="book-outline"
 							size={20}
-							color={colors.gold.primary}
+							color={colors.text.secondary}
 						/>
 						<View style={styles.linkInfo}>
-							<Text style={styles.linkLabel}>Roles Guide</Text>
+							<Text style={styles.linkLabel}>Roles guide</Text>
 							<Text style={styles.linkDesc}>
 								Browse all {ROLE_LIST.length} roles and
 								abilities
@@ -62,7 +66,7 @@ export default function SettingsScreen() {
 						</View>
 						<Ionicons
 							name="chevron-forward"
-							size={18}
+							size={20}
 							color={colors.text.muted}
 						/>
 					</TouchableOpacity>
@@ -74,10 +78,10 @@ export default function SettingsScreen() {
 						<Ionicons
 							name="stats-chart-outline"
 							size={20}
-							color={colors.gold.primary}
+							color={colors.text.secondary}
 						/>
 						<View style={styles.linkInfo}>
-							<Text style={styles.linkLabel}>Game History</Text>
+							<Text style={styles.linkLabel}>Game history</Text>
 							<Text style={styles.linkDesc}>
 								{totalGames > 0
 									? `${totalGames} games played`
@@ -86,108 +90,35 @@ export default function SettingsScreen() {
 						</View>
 						<Ionicons
 							name="chevron-forward"
-							size={18}
+							size={20}
 							color={colors.text.muted}
 						/>
 					</TouchableOpacity>
 				</View>
 
-				{/* Sound */}
-				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>SOUND</Text>
-					<View style={styles.settingRow}>
-						<View style={styles.settingInfo}>
-							<Text style={styles.settingLabel}>
-								Sound Effects
-							</Text>
-							<Text style={styles.settingDesc}>
-								Play sounds during phase transitions
-							</Text>
-						</View>
-						<Switch
-							value={settings.soundEnabled}
-							onValueChange={settings.setSoundEnabled}
-							trackColor={{
-								false: colors.bg.elevated,
-								true: colors.gold.dark,
-							}}
-							thumbColor={
-								settings.soundEnabled
-									? colors.gold.primary
-									: colors.text.muted
-							}
-						/>
-					</View>
-					<View style={styles.settingRow}>
-						<View style={styles.settingInfo}>
-							<Text style={styles.settingLabel}>
-								Ambient Music
-							</Text>
-							<Text style={styles.settingDesc}>
-								Subtle background music during gameplay
-							</Text>
-						</View>
-						<Switch
-							value={settings.ambientMusicEnabled}
-							onValueChange={settings.setAmbientMusic}
-							trackColor={{
-								false: colors.bg.elevated,
-								true: colors.gold.dark,
-							}}
-							thumbColor={
-								settings.ambientMusicEnabled
-									? colors.gold.primary
-									: colors.text.muted
-							}
-						/>
-					</View>
-				</View>
-
 				{/* Gameplay */}
 				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>GAMEPLAY</Text>
+					<Text style={styles.sectionTitle}>Gameplay</Text>
 					<View style={styles.settingRow}>
 						<View style={styles.settingInfo}>
 							<Text style={styles.settingLabel}>
-								Haptic Feedback
-							</Text>
-							<Text style={styles.settingDesc}>
-								Vibration on key actions
-							</Text>
-						</View>
-						<Switch
-							value={settings.hapticEnabled}
-							onValueChange={settings.setHapticEnabled}
-							trackColor={{
-								false: colors.bg.elevated,
-								true: colors.gold.dark,
-							}}
-							thumbColor={
-								settings.hapticEnabled
-									? colors.gold.primary
-									: colors.text.muted
-							}
-						/>
-					</View>
-					<View style={styles.settingRow}>
-						<View style={styles.settingInfo}>
-							<Text style={styles.settingLabel}>
-								Reveal Dead Roles
+								Reveal dead roles
 							</Text>
 							<Text style={styles.settingDesc}>
 								Show role when a player is eliminated
 							</Text>
 						</View>
 						<Switch
+							accessibilityLabel="Reveal dead roles"
 							value={settings.revealDeadRoles}
 							onValueChange={settings.setRevealDeadRoles}
 							trackColor={{
 								false: colors.bg.elevated,
-								true: colors.gold.dark,
+								true: colors.accent.dark,
 							}}
 							thumbColor={
 								settings.revealDeadRoles
-									? colors.gold.primary
+									? colors.accent.primary
 									: colors.text.muted
 							}
 						/>
@@ -195,7 +126,7 @@ export default function SettingsScreen() {
 					<View style={styles.settingRow}>
 						<View style={styles.settingInfo}>
 							<Text style={styles.settingLabel}>
-								Discussion Timer
+								Discussion timer
 							</Text>
 							<Text style={styles.settingDesc}>
 								Duration for day discussions
@@ -230,7 +161,7 @@ export default function SettingsScreen() {
 					<View style={styles.settingRow}>
 						<View style={styles.settingInfo}>
 							<Text style={styles.settingLabel}>
-								Role Reveal Mode
+								Role reveal mode
 							</Text>
 							<Text style={styles.settingDesc}>
 								How players see their roles
@@ -252,7 +183,7 @@ export default function SettingsScreen() {
 											styles.optionTextActive,
 									]}
 								>
-									Pass
+									List
 								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
@@ -279,9 +210,9 @@ export default function SettingsScreen() {
 
 				{/* About */}
 				<View style={styles.section}>
-					<Text style={styles.sectionTitle}>ABOUT</Text>
+					<Text style={styles.sectionTitle}>About</Text>
 					<View style={styles.aboutBox}>
-						<Text style={styles.aboutTitle}>MAFIA</Text>
+						<Text style={styles.aboutTitle}>Mafia</Text>
 						<Text style={styles.aboutText}>
 							In-person Mafia party game manager.{'\n'}Only God
 							(the narrator) needs this app.
@@ -306,14 +237,17 @@ export default function SettingsScreen() {
 						edges={['top', 'left', 'right']}
 					>
 						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>ROLES GUIDE</Text>
+							<Text style={styles.modalTitle}>Roles guide</Text>
 							<TouchableOpacity
 								onPress={() => setShowRoles(false)}
+								accessibilityRole="button"
+								accessibilityLabel="Close roles guide"
+								hitSlop={8}
 							>
 								<Ionicons
 									name="close"
-									size={28}
-									color={colors.gold.primary}
+									size={24}
+									color={colors.text.primary}
 								/>
 							</TouchableOpacity>
 						</View>
@@ -324,22 +258,22 @@ export default function SettingsScreen() {
 								[
 									{
 										key: 'all',
-										label: 'ALL',
-										color: colors.gold.primary,
+										label: 'All',
+										color: colors.text.primary,
 									},
 									{
 										key: 'mafia',
-										label: 'MAFIA',
+										label: 'Mafia',
 										color: colors.mafia.primary,
 									},
 									{
 										key: 'village',
-										label: 'VILLAGE',
+										label: 'Village',
 										color: colors.village.primary,
 									},
 									{
 										key: 'neutral',
-										label: 'NEUTRAL',
+										label: 'Neutral',
 										color: colors.neutral.primary,
 									},
 								] as const
@@ -348,17 +282,20 @@ export default function SettingsScreen() {
 									key={f.key}
 									style={[
 										styles.filterBtn,
-										roleFilter === f.key && {
-											borderColor: f.color,
-											backgroundColor: `${f.color}20`,
-										},
+										roleFilter === f.key &&
+											styles.filterBtnActive,
 									]}
 									onPress={() => setRoleFilter(f.key)}
 								>
 									<Text
 										style={[
 											styles.filterText,
-											{ color: f.color },
+											{
+												color:
+													roleFilter === f.key
+														? colors.text.primary
+														: f.color,
+											},
 										]}
 									>
 										{f.label}
@@ -386,9 +323,13 @@ export default function SettingsScreen() {
 										activeOpacity={0.7}
 									>
 										<View style={styles.roleHeader}>
-											<Text style={styles.roleIcon}>
-												{role.icon}
-											</Text>
+											<View style={styles.roleIconBox}>
+												<Ionicons
+													name={role.icon}
+													size={24}
+													color={tc.primary}
+												/>
+											</View>
 											<View style={{ flex: 1 }}>
 												<Text style={styles.roleName}>
 													{role.name}
@@ -399,7 +340,7 @@ export default function SettingsScreen() {
 														{ color: tc.primary },
 													]}
 												>
-													{role.team.toUpperCase()}
+													{capitalize(role.team)}
 												</Text>
 											</View>
 											<Ionicons
@@ -428,19 +369,19 @@ export default function SettingsScreen() {
 																styles.detailLabel
 															}
 														>
-															NIGHT ACTION
+															Night action
 														</Text>
 														<Text
 															style={
 																styles.detailValue
 															}
 														>
-															{role.nightAction
-																.replace(
+															{capitalize(
+																role.nightAction.replace(
 																	/_/g,
 																	' ',
-																)
-																.toUpperCase()}
+																),
+															)}
 														</Text>
 													</View>
 												)}
@@ -455,7 +396,7 @@ export default function SettingsScreen() {
 																styles.detailLabel
 															}
 														>
-															PASSIVE ABILITY
+															Passive ability
 														</Text>
 														<Text
 															style={
@@ -474,7 +415,7 @@ export default function SettingsScreen() {
 															styles.detailLabel
 														}
 													>
-														PLAYER TIP
+														Player tip
 													</Text>
 													<Text
 														style={
@@ -490,7 +431,7 @@ export default function SettingsScreen() {
 															styles.detailLabel
 														}
 													>
-														GOD'S NOTE
+														God's note
 													</Text>
 													<Text
 														style={
@@ -524,14 +465,17 @@ export default function SettingsScreen() {
 						edges={['top', 'left', 'right']}
 					>
 						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>GAME HISTORY</Text>
+							<Text style={styles.modalTitle}>Game history</Text>
 							<TouchableOpacity
 								onPress={() => setShowHistory(false)}
+								accessibilityRole="button"
+								accessibilityLabel="Close game history"
+								hitSlop={8}
 							>
 								<Ionicons
 									name="close"
-									size={28}
-									color={colors.gold.primary}
+									size={24}
+									color={colors.text.primary}
 								/>
 							</TouchableOpacity>
 						</View>
@@ -541,12 +485,11 @@ export default function SettingsScreen() {
 								<View style={styles.emptyState}>
 									<Ionicons
 										name="document-text-outline"
-										size={48}
+										size={40}
 										color={colors.text.muted}
 									/>
 									<Text style={styles.emptyText}>
-										No games played yet. Start your first
-										game!
+										No games played yet.
 									</Text>
 								</View>
 							) : (
@@ -558,18 +501,10 @@ export default function SettingsScreen() {
 												{totalGames}
 											</Text>
 											<Text style={styles.statLabel}>
-												GAMES
+												Games
 											</Text>
 										</View>
-										<View
-											style={[
-												styles.statBox,
-												{
-													borderColor:
-														colors.mafia.primary,
-												},
-											]}
-										>
+										<View style={styles.statBox}>
 											<Text
 												style={[
 													styles.statValue,
@@ -582,18 +517,10 @@ export default function SettingsScreen() {
 												{mafiaWins}
 											</Text>
 											<Text style={styles.statLabel}>
-												MAFIA
+												Mafia
 											</Text>
 										</View>
-										<View
-											style={[
-												styles.statBox,
-												{
-													borderColor:
-														colors.village.primary,
-												},
-											]}
-										>
+										<View style={styles.statBox}>
 											<Text
 												style={[
 													styles.statValue,
@@ -606,7 +533,7 @@ export default function SettingsScreen() {
 												{villageWins}
 											</Text>
 											<Text style={styles.statLabel}>
-												VILLAGE
+												Village
 											</Text>
 										</View>
 									</View>
@@ -634,8 +561,10 @@ export default function SettingsScreen() {
 															},
 														]}
 													>
-														{game.winner.toUpperCase()}{' '}
-														WON
+														{capitalize(
+															game.winner,
+														)}{' '}
+														won
 													</Text>
 												</View>
 												<Text style={styles.gameInfo}>
@@ -647,30 +576,20 @@ export default function SettingsScreen() {
 										);
 									})}
 
-									<TouchableOpacity
+									<Button
+										label="Clear history"
+										variant="destructive"
 										style={styles.clearHistoryBtn}
 										onPress={() =>
-											Alert.alert(
-												'Clear History',
+											confirm(
+												'Clear history?',
 												'Delete all game records?',
-												[
-													{
-														text: 'Cancel',
-														style: 'cancel',
-													},
-													{
-														text: 'Clear',
-														style: 'destructive',
-														onPress: clearHistory,
-													},
-												],
+												'Clear',
+												clearHistory,
+												true,
 											)
 										}
-									>
-										<Text style={styles.clearHistoryText}>
-											Clear History
-										</Text>
-									</TouchableOpacity>
+									/>
 								</>
 							)}
 							<View style={{ height: 40 }} />
@@ -692,10 +611,9 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: fonts.heading,
-		fontSize: 29,
-		color: colors.gold.primary,
+		fontSize: 32,
+		color: colors.text.primary,
 		textAlign: 'center',
-		letterSpacing: 3,
 		marginTop: 8,
 		marginBottom: 24,
 	},
@@ -703,10 +621,9 @@ const styles = StyleSheet.create({
 		marginBottom: 24,
 	},
 	sectionTitle: {
-		fontFamily: fonts.heading,
-		fontSize: 13,
-		color: colors.gold.primary,
-		letterSpacing: 2,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 14,
+		color: colors.text.secondary,
 		marginBottom: 12,
 	},
 
@@ -715,24 +632,26 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: colors.bg.card,
-		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 14,
 		padding: 16,
 		marginBottom: 8,
-		gap: 14,
+		gap: 12,
 	},
 	linkInfo: {
 		flex: 1,
 	},
 	linkLabel: {
-		fontFamily: fonts.bodyBold,
+		fontFamily: fonts.bodySemiBold,
 		fontSize: 16,
 		color: colors.text.primary,
 	},
 	linkDesc: {
 		fontFamily: fonts.body,
-		fontSize: 13,
-		color: colors.text.muted,
-		marginTop: 2,
+		fontSize: 12,
+		color: colors.text.secondary,
+		marginTop: 4,
 	},
 
 	// Settings rows
@@ -740,7 +659,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		backgroundColor: colors.bg.card,
-		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 14,
 		padding: 16,
 		marginBottom: 8,
 	},
@@ -748,59 +669,60 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	settingLabel: {
-		fontFamily: fonts.bodyBold,
+		fontFamily: fonts.bodySemiBold,
 		fontSize: 16,
 		color: colors.text.primary,
 	},
 	settingDesc: {
 		fontFamily: fonts.body,
-		fontSize: 13,
-		color: colors.text.muted,
-		marginTop: 2,
+		fontSize: 12,
+		color: colors.text.secondary,
+		marginTop: 4,
 	},
 	optionRow: {
 		flexDirection: 'row',
-		gap: 6,
+		gap: 8,
 	},
 	option: {
-		backgroundColor: colors.bg.elevated,
+		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.text.muted,
-		borderRadius: 8,
-		paddingHorizontal: 14,
-		paddingVertical: 10,
+		borderColor: colors.border,
+		borderRadius: 10,
+		paddingHorizontal: 12,
+		paddingVertical: 12,
 		minWidth: 44,
 		alignItems: 'center' as const,
 	},
 	optionActive: {
-		borderColor: colors.gold.primary,
-		backgroundColor: colors.gold.muted,
+		borderColor: colors.accent.primary,
+		backgroundColor: colors.accent.muted,
 	},
 	optionText: {
 		fontFamily: fonts.body,
 		fontSize: 14,
-		color: colors.text.muted,
+		color: colors.text.secondary,
 	},
 	optionTextActive: {
-		color: colors.gold.primary,
-		fontFamily: fonts.bodyBold,
+		color: colors.text.primary,
+		fontFamily: fonts.bodySemiBold,
 	},
 	aboutBox: {
 		backgroundColor: colors.bg.card,
-		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 14,
 		padding: 20,
 		alignItems: 'center',
 	},
 	aboutTitle: {
 		fontFamily: fonts.heading,
-		fontSize: 25,
-		color: colors.gold.primary,
-		letterSpacing: 3,
+		fontSize: 24,
+		color: colors.text.primary,
 		marginBottom: 8,
 	},
 	aboutText: {
 		fontFamily: fonts.body,
-		fontSize: 15,
+		fontSize: 14,
 		color: colors.text.secondary,
 		textAlign: 'center',
 		lineHeight: 20,
@@ -808,8 +730,8 @@ const styles = StyleSheet.create({
 	},
 	version: {
 		fontFamily: fonts.body,
-		fontSize: 13,
-		color: colors.text.muted,
+		fontSize: 12,
+		color: colors.text.secondary,
 	},
 
 	// Modal shared
@@ -824,13 +746,12 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 20,
 		paddingVertical: 12,
 		borderBottomWidth: 1,
-		borderBottomColor: colors.gold.muted,
+		borderBottomColor: colors.border,
 	},
 	modalTitle: {
 		fontFamily: fonts.heading,
-		fontSize: 21,
-		color: colors.gold.primary,
-		letterSpacing: 2,
+		fontSize: 20,
+		color: colors.text.primary,
 	},
 	modalScroll: {
 		flex: 1,
@@ -846,71 +767,73 @@ const styles = StyleSheet.create({
 	},
 	filterBtn: {
 		flex: 1,
+		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.text.muted,
-		borderRadius: 8,
+		borderColor: colors.border,
+		borderRadius: 10,
 		paddingVertical: 8,
 		alignItems: 'center',
 	},
+	filterBtnActive: {
+		borderColor: colors.accent.primary,
+		backgroundColor: colors.accent.muted,
+	},
 	filterText: {
-		fontFamily: fonts.heading,
-		fontSize: 10,
-		letterSpacing: 1,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 12,
 	},
 	roleCard: {
 		backgroundColor: colors.bg.card,
-		borderRadius: 12,
+		borderRadius: 14,
 		borderLeftWidth: 4,
 		padding: 16,
-		marginBottom: 10,
+		marginBottom: 12,
 	},
 	roleHeader: {
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
-	roleIcon: {
-		fontSize: 29,
+	roleIconBox: {
+		width: 24,
 		marginRight: 12,
 	},
 	roleName: {
-		fontFamily: fonts.heading,
+		fontFamily: fonts.bodySemiBold,
 		fontSize: 16,
 		color: colors.text.primary,
 	},
 	roleBadge: {
 		fontFamily: fonts.body,
 		fontSize: 12,
-		letterSpacing: 1,
-		marginTop: 2,
+		marginTop: 4,
 	},
 	roleDesc: {
 		fontFamily: fonts.body,
 		fontSize: 14,
 		color: colors.text.secondary,
 		marginTop: 8,
-		lineHeight: 19,
+		lineHeight: 20,
 	},
 	roleDetails: {
 		marginTop: 12,
 		borderTopWidth: 1,
-		borderTopColor: colors.gold.muted,
+		borderTopColor: colors.border,
 		paddingTop: 12,
 	},
 	detailItem: {
-		marginBottom: 10,
+		marginBottom: 12,
 	},
 	detailLabel: {
-		fontFamily: fonts.heading,
-		fontSize: 10,
-		color: colors.gold.dark,
-		letterSpacing: 2,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 12,
+		color: colors.text.secondary,
 		marginBottom: 4,
 	},
 	detailValue: {
 		fontFamily: fonts.body,
 		fontSize: 14,
 		color: colors.text.primary,
-		lineHeight: 19,
+		lineHeight: 20,
 	},
 
 	// History
@@ -920,41 +843,42 @@ const styles = StyleSheet.create({
 	},
 	emptyText: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.secondary,
 		textAlign: 'center',
 		marginTop: 16,
 	},
 	statsRow: {
 		flexDirection: 'row',
-		gap: 10,
+		gap: 12,
 		marginBottom: 24,
 	},
 	statBox: {
 		flex: 1,
 		backgroundColor: colors.bg.card,
 		borderWidth: 1,
-		borderColor: colors.gold.muted,
-		borderRadius: 12,
+		borderColor: colors.border,
+		borderRadius: 14,
 		padding: 16,
 		alignItems: 'center',
 	},
 	statValue: {
 		fontFamily: fonts.heading,
-		fontSize: 29,
-		color: colors.gold.primary,
+		fontSize: 32,
+		color: colors.text.primary,
 	},
 	statLabel: {
 		fontFamily: fonts.body,
-		fontSize: 10,
-		color: colors.text.muted,
-		letterSpacing: 1,
+		fontSize: 12,
+		color: colors.text.secondary,
 		marginTop: 4,
 	},
 	gameCard: {
 		backgroundColor: colors.bg.card,
-		borderRadius: 10,
-		padding: 14,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 14,
+		padding: 12,
 		marginBottom: 8,
 	},
 	gameHeader: {
@@ -966,12 +890,11 @@ const styles = StyleSheet.create({
 	gameDate: {
 		fontFamily: fonts.body,
 		fontSize: 14,
-		color: colors.text.muted,
+		color: colors.text.secondary,
 	},
 	gameWinner: {
-		fontFamily: fonts.heading,
-		fontSize: 13,
-		letterSpacing: 1,
+		fontFamily: fonts.bodySemiBold,
+		fontSize: 14,
 	},
 	gameInfo: {
 		fontFamily: fonts.body,
@@ -981,12 +904,5 @@ const styles = StyleSheet.create({
 	clearHistoryBtn: {
 		marginTop: 20,
 		alignSelf: 'center',
-		padding: 12,
-	},
-	clearHistoryText: {
-		fontFamily: fonts.body,
-		fontSize: 15,
-		color: colors.danger,
-		textDecorationLine: 'underline',
 	},
 });

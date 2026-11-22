@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DayPhaseScreen from '../screens/DayPhaseScreen';
 import GameEndScreen from '../screens/GameEndScreen';
@@ -11,6 +12,7 @@ import { useGameStore } from '../store/gameStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
+import { confirm } from '../utils/confirm';
 import type { GameStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<GameStackParamList>();
@@ -19,28 +21,24 @@ function CancelGameButton() {
 	const resetGame = useGameStore((s) => s.resetGame);
 
 	const handleCancel = () => {
-		Alert.alert(
-			'End Game',
-			'Are you sure you want to cancel the current game? All progress will be lost.',
-			[
-				{ text: 'Keep Playing', style: 'cancel' },
-				{
-					text: 'End Game',
-					style: 'destructive',
-					onPress: resetGame,
-				},
-			],
+		confirm(
+			'End game?',
+			'All progress will be lost.',
+			'End game',
+			resetGame,
+			true,
 		);
 	};
 
 	return (
 		<TouchableOpacity
 			onPress={handleCancel}
-			style={styles.cancelBtn}
+			style={styles.headerBtn}
+			hitSlop={8}
 			accessibilityLabel="End current game"
 			accessibilityRole="button"
 		>
-			<Text style={styles.cancelBtnText}>END</Text>
+			<Text style={styles.cancelBtnText}>End</Text>
 		</TouchableOpacity>
 	);
 }
@@ -51,7 +49,7 @@ function NoGameScreen() {
 			style={styles.noGameContainer}
 			edges={['top', 'left', 'right']}
 		>
-			<Text style={styles.noGameTitle}>NO ACTIVE GAME</Text>
+			<Text style={styles.noGameTitle}>No active game</Text>
 			<Text style={styles.noGameText}>
 				Go to the Setup tab to add players, configure roles, and start a
 				new game.
@@ -68,29 +66,60 @@ export default function GameStackNavigator() {
 		return <NoGameScreen />;
 	}
 
+	const initialRouteName =
+		phase === 'night'
+			? 'NightPhase'
+			: phase === 'day'
+				? 'DayPhase'
+				: phase === 'ended'
+					? 'GameEnd'
+					: revealMode === 'qr'
+						? 'QRReveal'
+						: 'RoleReveal';
+
 	return (
 		<Stack.Navigator
-			screenOptions={{
+			initialRouteName={initialRouteName}
+			screenOptions={({ navigation }) => ({
 				headerStyle: { backgroundColor: colors.bg.primary },
-				headerTintColor: colors.gold.primary,
-				headerTitleStyle: { fontFamily: fonts.heading, fontSize: 16 },
+				headerTintColor: colors.text.primary,
+				headerTitleStyle: {
+					fontFamily: fonts.bodySemiBold,
+					fontSize: 16,
+				},
 				contentStyle: { backgroundColor: colors.bg.primary },
 				animation: 'fade',
 				headerShown: true,
-				headerRight: () => <CancelGameButton />,
-			}}
+				headerRight: () => (
+					<View style={styles.headerRight}>
+						<TouchableOpacity
+							onPress={() => navigation.navigate('PlayerBoard')}
+							style={styles.headerBtn}
+							accessibilityLabel="Open town board"
+							accessibilityRole="button"
+						>
+							<Ionicons
+								name="people-outline"
+								size={22}
+								color={colors.text.primary}
+							/>
+						</TouchableOpacity>
+						<CancelGameButton />
+					</View>
+				),
+			})}
 		>
 			{revealMode === 'qr' ? (
 				<Stack.Screen
 					name="QRReveal"
 					component={QRRevealScreen}
-					options={{ title: 'Role Reveal' }}
+					options={{ title: 'Roles' }}
 				/>
 			) : (
 				<Stack.Screen
 					name="RoleReveal"
 					component={RoleRevealScreen}
-					options={{ title: 'Role Reveal' }}
+					options={{ title: 'Roles' }}
 				/>
 			)}
 			<Stack.Screen
@@ -106,12 +135,12 @@ export default function GameStackNavigator() {
 			<Stack.Screen
 				name="PlayerBoard"
 				component={PlayerBoardScreen}
-				options={{ title: 'Town Board' }}
+				options={{ title: 'Town board', headerRight: () => null }}
 			/>
 			<Stack.Screen
 				name="GameEnd"
 				component={GameEndScreen}
-				options={{ title: 'Game Over', headerRight: () => null }}
+				options={{ title: 'Game over', headerRight: () => null }}
 			/>
 		</Stack.Navigator>
 	);
@@ -127,25 +156,27 @@ const styles = StyleSheet.create({
 	},
 	noGameTitle: {
 		fontFamily: fonts.heading,
-		fontSize: 25,
-		color: colors.gold.primary,
-		letterSpacing: 2,
+		fontSize: 24,
+		color: colors.text.primary,
 		marginBottom: 16,
 	},
 	noGameText: {
 		fontFamily: fonts.body,
-		fontSize: 17,
+		fontSize: 16,
 		color: colors.text.secondary,
 		textAlign: 'center',
 		lineHeight: 24,
 	},
-	cancelBtn: {
-		paddingHorizontal: 8,
-		paddingVertical: 6,
+	headerRight: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	headerBtn: {
+		padding: 12,
 	},
 	cancelBtnText: {
-		fontFamily: fonts.body,
+		fontFamily: fonts.bodyMedium,
 		fontSize: 14,
-		color: '#ffffff',
+		color: colors.text.primary,
 	},
 });
