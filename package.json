@@ -45,5 +45,16 @@
     "sharp": "^0.35.5",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "postcss": "^8.5.33",
+    "expo": {
+      "glob": "^14.0.6",
+      "minimatch": "^11.0.5"
+    },
+    "expo-updates": {
+      "glob": "^14.0.6",
+      "minimatch": "^11.0.5"
+    }
+  }
 }
