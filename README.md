@@ -4,6 +4,12 @@ A moderator app for in-person Mafia games. One person, the narrator, keeps it op
 
 It runs in any mobile browser. Players don't need the app; the narrator reads everything out loud.
 
+<p align="center">
+  <img src=".github/screenshots/setup.png" width="300" alt="Setup screen with eight players added and the Classic preset filling the role counts">
+  <img src=".github/screenshots/roles.png" width="300" alt="Roles screen listing each player with their dealt role and team, ready to begin the night">
+</p>
+<p align="center"><sub>Setting up an 8-player game, then the dealt roles the narrator reads out.</sub></p>
+
 ## How a game goes
 
 1. **Setup.** Add players by name or pick them from the saved friends list. Choose roles by hand, start from a preset (8, 10, 12 or 15 players), or tap Auto balance. The game needs 5 to 15 players, and the role count must match the player count.
